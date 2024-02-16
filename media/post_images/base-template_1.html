@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    {% block style %}{% endblock %}
+    <script src="{% static 'js/base.js' %}"></script>
+</head>
+<body>
+<div class="main-container">
+    <div class="left-container">
+        <div class="web-logo">
+            <img class="project-logo" src="{% static 'images/logo.png' %}" alt="SISS">
+        </div>
+        <div class="navigation-bar">
+            <nav class="nav-component">
+                <ul class="nav-ul">
+                    <li class="nav-ul-li">
+                        {% block nav-home %}
+                            <a href="{% url 'index' %}"><div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt=""></div></a>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'index' %}">Home</a></div>
+                        {% endblock %}
+                    </li>
+                    <li class="nav-ul-li">
+                        <button class="create-post-button" popovertarget="mypopover" popovertargetaction="show"><img class="nav-component-img" src="{% static 'images/hashtag.svg' %}" alt=""></button>
+                        <div class="nav-image-text"><button class="create-post-button" popovertarget="mypopover" popovertargetaction="show">Create Post</button></div>
+                    </li>
+                    <li class="nav-ul-li">
+                        <a href=""><div><img class="nav-component-img" src="{% static 'images/message.svg' %}" alt=""></div></a>
+                        <div class="nav-image-text"><a class="navbar-links" href="">Messages</a></div>
+                    </li>
+                    <li class="nav-ul-li">
+                        {% block nav-profile %}
+                            <a href="{% url 'profile' %}"><div><img class="nav-component-img" src="{% static 'images/profile.svg' %}" alt=""></div></a>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'profile' %}">Profile</a></div>
+                        {% endblock %}
+                    </li>
+                    <li class="nav-ul-li">
+                        <div><img class="nav-component-img" src="{% static 'images/pending.svg' %}" alt=""></div>
+                        <div class="nav-image-text">More</div>
+                        <div class="more-options"></div>
+                    </li>
+                </ul>
+                <button class="log-out-btn">Log Out</button>
+            </nav>
+            <div class="user-information">
+                <div class="user-profile-pic-div"><img class="user-profile-pic" src="{% static 'images/sunny.jpeg' %}" alt=""></div>
+                <div class="user-profile-information">
+                    <div>
+                        <p class="user-profile-name">Gyan Hari Dahal</p>
+                        <p class="user-profile-handle">@varlstarkiller</p>
+                    </div>
+                    <div class="user-profile-more">
+                        <img class="user-profile-more-image" src="{% static 'images/more.svg' %}" alt="more">
+                        <div class="user-profile-more-options"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+        <div id="mypopover" popover>
+            <div class="create-post-overlay">
+                <div class="create-post-header">Create Post</div>
+                <div class="create-post-body">
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <div class="post-user-caption">
+                            <label for="user-caption">Caption<sup style="color: red;user-select: none">*(required)</sup>: </label>
+                            <textarea id="user-caption" class="user-caption-content" placeholder="You Caption goes here" required></textarea>
+                        </div>
+                        <div class="user-post-media">
+                            <label for="user-media">Upload Picture</label>
+                            <input id="user-media" type="file" >
+                        </div>
+                        <br>
+                        <button class="post-submit-button" type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    <div class="middle-container">
+        {% block middle-block %}
+
+        {% endblock %}
+    </div>
+    <div class="right-container">
+        <div class="right-search-bar">
+            <label for="search-box"></label>
+            <input id="search-box" type="text" placeholder="Search">
+            <div class="right-search-button"><img class="search-bar-image" src="{% static 'images/search.svg' %}" alt="search"></div>
+            <button class="right-search-bar-search-text">Search</button>
+        </div>
+        <div class="right-posts">
+            <div class="right-posts-heading">Posts of the month</div>
+            <div class="right-top-post">
+                <div class="top-post-main-container">
+                    <div class="right-top-post-user-info">
+                        <p>@varlstarkiller</p>
+                        <p><h3>&#x2022;</h3></p>
+                        <p>4h ago</p>
+                    </div>
+                    <div class="right-top-post-content">Hi I am very good</div>
+                </div>
+                <div><img class="top-post-image" src="{% static 'images/treeeeee.jpg' %}" alt=""></div>
+            </div>
+            <div class="right-top-post">
+                <div class="top-post-main-container">
+                    <div class="right-top-post-user-info">
+                        <p>@varlstarkiller</p>
+                        <p><h3>&#x2022;</h3></p>
+                        <p>4h ago</p>
+                    </div>
+                    <div class="right-top-post-content">Hi I am very good</div>
+                </div>
+                <div><img class="top-post-image" src="{% static 'images/treeeeee.jpg' %}" alt=""></div>
+            </div>
+            <div class="right-top-post">
+                <div class="top-post-main-container">
+                    <div class="right-top-post-user-info">
+                        <p>@varlstarkiller</p>
+                        <p><h3>&#x2022;</h3></p>
+                        <p>4h ago</p>
+                    </div>
+                    <div class="right-top-post-content">Hi I am very good</div>
+                </div>
+                <div><img class="top-post-image" src="{% static 'images/treeeeee.jpg' %}" alt=""></div>
+            </div>
+            <div class="right-top-post">
+                <div class="top-post-main-container">
+                    <div class="right-top-post-user-info">
+                        <p>@varlstarkiller</p>
+                        <p><h3>&#x2022;</h3></p>
+                        <p>4h ago</p>
+                    </div>
+                    <div class="right-top-post-content">Hi I am very good</div>
+                </div>
+                <div><img class="top-post-image" src="{% static 'images/treeeeee.jpg' %}" alt=""></div>
+            </div>
+
+            <div><a class="right-bot-show-more" href="">Show more</a></div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}
+Home - SISS
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+{% endblock %}
+
+{% block nav-home %}
+<a href="{% url 'index' %}">
+    <div><img class="nav-component-img-active" src="{% static 'images/home.svg' %}" alt=""></div>
+</a>
+<div class="nav-image-text"><a class="navbar-links-active" href="{% url 'index' %}">Home</a></div>
+{% endblock %}
+
+{% block middle-block %}
+<div class="home-page-title" style="font-size: 25px;">Home</div>
+{% for post in posts reversed %}
+    {% if post.approved %} <!-- Check if the post is approved -->
+        <div class="main-tweets-container">
+            <div class="tweets-main-block">
+                <div class="tweets-block-user-info">
+                    <div class="tweets-block-profile-image">
+                        <img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+                    </div>
+                    <div class="tweets-block-user-info">
+                        <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
+                        <p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p></a>
+                        <h3>&#x2022;</h3>
+                        </p>
+                        <div style="display: flex; flex-direction: column;">
+                            <p style="color:#666"><small>{{post.created_at}}</small></p>
+                        </div>
+                    </div>
+                    <div class="tweets-user-rating">
+                        asdasdsa
+                    </div>
+                </div>
+                <div class="tweets-main-body">
+                    {% if post.caption %}
+                    <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                    {% endif %}
+
+                    {% if post.image %}
+                    <img src="{{post.image.url}}" alt="" class="tweets-main-body-media">
+                    {% endif %}
+                    <div class="tweets-like-and-comments">
+                        <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                            <div class="tweets-like-and-number">
+                                <img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
+                                <p class="tweet-liked-number">
+                                    {% if post.no_of_likes == 0 %}
+                                    <p>0</p>
+                                    {% elif post.no_of_likes == 1 %}
+                                    <p>{{post.no_of_likes}}</p>
+                                    {% else %}
+                                    <p>{{post.no_of_likes}}</p>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </a>
+                        <div class="tweets-comment-and-number">
+                            <img src="{% static 'images/comment.svg' %}" alt="" class="tweets-comment-image">
+                            <p class="tweet-comment-number">43</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

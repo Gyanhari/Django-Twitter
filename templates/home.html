@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Default Title{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/base.css' %}">
+    {% block style %}{% endblock %}
+    <script src="{% static 'js/base.js' %}"></script>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="left-container">
+            <div class="web-logo">
+                <a href="/"><img class="project-logo" src="{% static 'images/Screenshot 2024-01-18 110003.png' %}"
+                        alt="SISS"></a>
+            </div>
+            <div class="navigation-bar">
+                <nav class="nav-component">
+                    <ul class="nav-ul">
+                        <li class="nav-ul-li">
+                            {% block nav-home %}
+                            <a href="{% url 'index' %}">
+                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'index' %}"><b>Home</b></a>
+                            </div>
+                            {% endblock %}
+                        </li>
+                        <li class="nav-ul-li">
+                            <button class="create-post-button" popovertarget="mypopover" popovertargetaction="show"><img
+                                    class="nav-component-img" src="{% static 'images/hashtag.svg' %}" alt=""></button>
+                            <div class="nav-image-text"><button class="create-post-button" popovertarget="mypopover"
+                                    popovertargetaction="show"><b>New Post</b></button></div>
+                        </li>
+                        <li class="nav-ul-li">
+                            <a href="">
+                                <div><img class="nav-component-img" src="{% static 'images/message.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links" href=""><b>Messages</b></a></div>
+                        </li>
+                        <li class="nav-ul-li">
+                            {% block nav-profile %}
+                            <a href="/profile/{{user.username}}">
+                                <div><img class="nav-component-img size-big-vayo"
+                                        src="{% static 'images\profile.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links"
+                                    href="/profile/{{user.username}}"><b>Profile</b></a></div>
+                            {% endblock %}
+                        </li>
+                        <!-- <li class="nav-ul-li">
+                                <div><img class="nav-component-img" src="{% static 'images/pending.svg' %}" alt="">
+                                </div>
+                                <div class="nav-image-text">More</div>
+                                <div class="more-options"></div>
+                            </li> -->
+                    </ul>
+                    <div class="logout-button-container"><a href="/logout" class="log-out-btn">Log Out</a></div>
+                </nav>
+
+                <!-- <a href="/profile/{{user.username}}"> -->
+                <div class="user-information">
+                    <a href="/profile/{{user.username}}">
+                        <div class="user-profile-pic-div"><img class="user-profile-pic"
+                                src="{{user_profile.profileimg.url}}" alt=""></div>
+                    </a>
+                    <div class="user-profile-information">
+                        <div>
+                            <a style="
+                                    color: black;
+                                    text-decoration: none;
+                                " href="/profile/{{user.username}}">
+                                <p class="user-profile-name">{{user.first_name}} {{user.last_name}}</p>
+                                <p class="user-profile-handle">@{{user.username}}</p>
+                            </a>
+                        </div>
+                        <div class="user-profile-more">
+                            <!-- <img class="user-profile-more-image" src="{% static 'images/more.svg' %}" alt="more"> -->
+                            <div class="user-profile-more-options"></div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- </a> -->
+            </div>
+        </div>
+        <div id="mypopover" popover>
+            <div class="create-post-overlay">
+                <div class="create-post-header">Create Post</div>
+                <div class="create-post-body">
+                    <form action="/upload" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="post-user-caption">
+                            <label for="user-caption">Caption<sup style="color: red;user-select: none"></sup>: </label>
+                            <textarea id="user-caption" name="caption" class="user-caption-content"
+                                placeholder="You Caption goes here"></textarea>
+                        </div>
+                        <!-- <div class="post-budget">
+                            <label for="user-budget">Budget:</label>
+                            <input id="user-budget" name="budget" type="number" min="0">
+                        </div> -->
+                        <div class="user-post-media">
+                            <label for="user-media">Upload Picture</label>
+                            <input id="user-media" name="image_upload" type="file">
+                        </div>
+                        <br>
+                        <button class="post-submit-button" type="submit">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="middle-container">
+            {% block middle-block %}
+
+            {% endblock %}
+        </div>
+        <div class="right-container">
+            <form action="/search" method="POST">
+                {% csrf_token %}
+                <div class="right-search-bar">
+                    <label for="search-box"></label>
+                    <input id="search-box" type="text" name="username" placeholder="Search for user">&nbsp;
+                    &nbsp;
+                    <div class="right-search-button"><img class="search-bar-image"
+                            src="{% static 'images/search.svg' %}" alt=""></div>
+                    <!-- <button class="right-search-bar-search-text">Search</button> -->
+                </div>
+            </form>
+            <div class="right-posts">
+                <div class="right-posts-heading">Posts of the month</div>
+
+                {% for post in posts reversed %}
+                <div class="right-top-post">
+                    <div class="top-post-main-container">
+                        <div class="right-top-post-user-info">
+                            <p><strong>{{post.user|title}}</strong></p>
+                            <p>
+                            <h3>&#x2022;</h3>
+                            </p>
+                            <p>{{post.created_at}}</p>
+                        </div>
+                        <div class="right-top-post-content">{{post.caption}}</div>
+                    </div>
+                    {% if post.image %}
+                    <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+                    {% endif %}
+
+                </div>
+                {% endfor%}
+                <div><a class="right-bot-show-more" href="">Show more</a></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

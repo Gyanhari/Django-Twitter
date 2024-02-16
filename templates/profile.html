@@ -1,0 +1,144 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}
+Profile - SISS
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block nav-profile %}
+<div><img class="nav-component-img-active size-big-vayo" src="{% static 'images/profile.svg' %}" alt=""></div>
+<div class="nav-image-text"><a class="navbar-links-active" href=""><b>Profile</b></a></div>
+{% endblock %}
+
+{% block middle-block %}
+<div class="middle-profile-main-container">
+
+	<div class="profile-top-component">
+		<a class="back-button-link" href="{% url 'index' %}">
+			<img class="profile-back-button" src="{% static 'images/back.svg' %}" alt="">
+		</a>
+		<div class="profile-top-user-info">
+			<p class="profile-top-name">{{user_profile.user.username|title}}</p>
+			<p class="profile-top-number-of-tweets">{{user_post_length}} Posts</p>
+		</div>
+	</div>
+	<div class="profile-mid-cover-and-profile">
+		<div class="mid-cover-pic-div">
+			<img class="mid-cover-pic-image" src="{{user_profile.profileimg.url}}" alt="">
+		</div>
+		<div class="mid-profile-pic-div">
+			<img class="mid-profile-pic-image" src="{{user_profile.profileimg.url}}" alt="Chad Women">
+		</div>
+		<div class="profile-user-information">
+			<div class="profile_username">
+				<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}} {{user_profile.user.last_name|title}}</strong>
+					<!-- <small>@{{user_profile.user.username|title}}</small> -->
+				</p>
+				<!-- <p class="mid-profile-user-username"></p> -->
+				<p><small>{{user_profile.bio}}</small></p>
+				<p><small>{{ user_email }}</small></p>
+	
+			</div>
+			<form action="/follow" method="POST">
+				{% csrf_token %}
+				<div class="add-btn">
+
+					<div class="number-of-follower">
+						{% if user_post_length == 0 %}
+						<span style="color: black; font-size: 20px;">No Post</span>
+						{% elif user_post_length == 1 %}
+						<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
+						{% else %}
+						<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
+						{% endif %}
+
+						{% if user_followers == 0 or user_followers == 1 %}
+						<span style="color: black; font-size: 20px;">{{user_followers}} follower</span>
+						{% else %}
+						<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
+						{% endif %}
+
+
+						<span style="color: black; font-size: 20px;">{{user_following}} following</span>
+						{% if user_object.username == user.username %}
+						<div class="setting-and-edit-profile">
+							<button><a href="/settings" data-ripple="">Edit Profile</a></button>
+						</div>
+						{% else %}
+						<div class="setting-and-edit-profile">
+						<a data-ripple=""><button class="follow-and-unfollow" type="submit">{{button_text}}</button></a>
+						<!-- <button type="submit">Chat</button> -->
+					</div>
+						{% endif %}
+					</div>
+
+					<input type="hidden" value="{{user.username}}" name="follower" />
+					<input type="hidden" value="{{user_object.username}}" name="user" />
+
+
+
+				</div>
+			</form>
+		</div>
+	</div>
+	<div></div>
+	{% for post in user_posts %}
+	{% if post.approved %}  <!-- Check if the post is approved -->
+	<div class="tweets-main-block">
+		<div class="tweets-block-user-info">
+			<div class="tweets-block-profile-image">
+				<img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+			</div>
+			<div class="tweets-block-user-info">
+				<p><strong>{{post.user|title}}</strong></p>
+				<p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p>
+				<p></p>
+				<p>
+				<h3>&#x2022;</h3>
+				</p>
+				<div style="display: flex; flex-direction: column;">
+					<p style="color:#666"><small>{{post.created_at}}</small></p>
+				</div>
+			</div>
+			<!-- <div class="tweets-user-rating">
+				asdasdsa
+			</div> -->
+		</div>
+		<div class="tweets-main-body">
+			{% if post.caption %}
+			<p class="tweets-main-body-desc">{{ post.caption }}</p>
+			{% endif %}
+			
+			{% if post.image %}
+			<img src="{{post.image.url}}" alt="" class="tweets-main-body-media">
+			{% endif %}
+			<div class="tweets-like-and-comments">
+				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+					<div class="tweets-like-and-number">
+						<img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
+						<p style="color:black; text-decoration: none;" class="tweet-liked-number">
+							{% if post.no_of_likes == 0 %}
+						<p style="color:black; text-decoration: none;">0</p>
+						{% elif post.no_of_likes == 1 %}
+						<p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
+						{% else %}
+						<p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
+						{% endif %}</p>
+					</div>
+				</a>
+				<div class="tweets-comment-and-number">
+					<img src="{% static 'images/comment.svg' %}" alt="" class="tweets-comment-image">
+					<p class="tweet-comment-number">43</p>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	{% endfor %}
+</div>
+
+{% endblock %}

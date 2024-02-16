@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Approval Panel</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        img {
+            max-width: 100px;
+            max-height: 100px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Pending Posts for Approval</h1>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>User</th>
+                    <th>Caption</th>
+                    <th>Post</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in pending_posts %}
+                <tr>
+                    <td>{{ forloop.counter }}</td> <!-- Display serial number -->
+                    <td>{{ post.user }}</td> <!-- Display user -->
+                    <td>{{ post.caption }}</td> <!-- Display caption -->
+            
+                    <!-- Check if post has an image -->
+                    {% if post.image %}
+                    <td>
+                        <a href="{{ post.image.url }}" target="_blank">
+                            <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100px; max-height: 100px;">
+                        </a>
+                    </td>
+                    {% else %}
+                    <td>No Image</td> <!-- Display if no image is present -->
+                    {% endif %}
+            
+                    <!-- Display buttons for approval or deletion -->
+                    <td>
+                        <form action="{% url 'admin_approval' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <button type="submit" name="action" value="approve">Approve</button>
+                            <button type="submit" name="action" value="reject">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h1>Approved Posts</h1>
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>SN</th>
+                    <th>User</th>
+                    <th>Caption</th>
+                    <th>Post</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in approved_posts %}
+                <tr>
+                    <td>{{ forloop.counter }}</td> <!-- Display serial number -->
+                    <td>{{ post.user }}</td> <!-- Display user -->
+                    <td>{{ post.caption }}</td> <!-- Display caption -->
+            
+                    <!-- Check if post has an image -->
+                    {% if post.image %}
+                    <td>
+                        <a href="{{ post.image.url }}" target="_blank">
+                            <img src="{{ post.image.url }}" alt="Post Image" style="max-width: 100px; max-height: 100px;">
+                        </a>
+                    </td>
+                    {% else %}
+                    <td>No Image</td> <!-- Display if no image is present -->
+                    {% endif %}
+            
+                    <!-- Display delete button for approved posts -->
+                    <td>
+                        <form action="{% url 'admin_approval' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <button type="submit" name="action" value="reject">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+</body>
+</html>
