@@ -62,10 +62,15 @@ Home - SISS
                                 </p>
                             </div>
                         </a>
+                        <!-- <a href="{% url 'comment' post.id %}" class="comment-link">Comment</a>
+
                         <div class="tweets-comment-and-number">
                             <img src="{% static 'images/comment.svg' %}" alt="" class="tweets-comment-image">
-                            <p class="tweet-comment-number">43</p>
+                            <a href="#" class="comment-link" data-toggle="modal" data-target="#commentModal{{ post.id }}">Comment</a>
                         </div>
+                        </a> -->
+                        <!-- Modal for comments -->
+                        <a href="{% url 'comment' post.id %}">comment</a>
                     </div>
                 </div>
             </div>
@@ -73,3 +78,4 @@ Home - SISS
     {% endif %}
 {% endfor %}
 {% endblock %}
+

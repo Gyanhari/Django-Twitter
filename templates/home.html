@@ -134,15 +134,13 @@
             </form>
             <div class="right-posts">
                 <div class="right-posts-heading">Posts of the month</div>
-
-                {% for post in posts reversed %}
+            
+                {% for post in posts|slice:":5" %}
                 <div class="right-top-post">
                     <div class="top-post-main-container">
                         <div class="right-top-post-user-info">
                             <p><strong>{{post.user|title}}</strong></p>
-                            <p>
-                            <h3>&#x2022;</h3>
-                            </p>
+                            <p><h3>&#x2022;</h3></p>
                             <p>{{post.created_at}}</p>
                         </div>
                         <div class="right-top-post-content">{{post.caption}}</div>
@@ -150,11 +148,12 @@
                     {% if post.image %}
                     <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
                     {% endif %}
-
                 </div>
-                {% endfor%}
-                <div><a class="right-bot-show-more" href="">Show more</a></div>
+                {% endfor %}
+            
+                <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
             </div>
+            
         </div>
     </div>
 </body>

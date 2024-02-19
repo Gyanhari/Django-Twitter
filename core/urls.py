@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,  re_path
 from . import views
 
 urlpatterns = [
@@ -13,4 +13,5 @@ urlpatterns = [
     path('signin', views.signin, name='signin'),
     path('logout', views.logout, name='logout'),
     path('admin_approval', views.admin_approval, name='admin_approval'),
+    re_path(r'^comment/(?P<post_id>[\w-]+)/$', views.add_comment, name='comment'),
 ]

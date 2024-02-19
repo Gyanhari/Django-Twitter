@@ -71,7 +71,7 @@ Profile - SISS
 						{% else %}
 						<div class="setting-and-edit-profile">
 						<a data-ripple=""><button class="follow-and-unfollow" type="submit">{{button_text}}</button></a>
-						<!-- <button type="submit">Chat</button> -->
+						<button type="submit">Chat</button>
 					</div>
 						{% endif %}
 					</div>
@@ -130,10 +130,9 @@ Profile - SISS
 						{% endif %}</p>
 					</div>
 				</a>
-				<div class="tweets-comment-and-number">
-					<img src="{% static 'images/comment.svg' %}" alt="" class="tweets-comment-image">
-					<p class="tweet-comment-number">43</p>
-				</div>
+				<a href="{% url 'comment' post.id %}">comment</a>
+
+
 			</div>
 		</div>
 	</div>

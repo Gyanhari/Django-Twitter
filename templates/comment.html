@@ -1,0 +1,158 @@
+<!-- index.html -->
+
+<style>
+    .home-page-title{
+    font-weight: bold;
+    font-size: 19px;
+    width: 100%;
+    height: 10vh;
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    padding-left: 25px;
+    border-bottom: 5px solid #FFFFFF;
+    padding-bottom: 10px;
+}
+.main-tweets-container{
+    display: flex;
+    flex-direction: column;
+
+}
+.tweets-main-block{
+    background-color: #FFFFFF;
+    /*margin-bottom: 5px;*/
+    margin-top: 5px;
+
+}
+.tweets-block-user-info{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
+a{
+    text-decoration: none;
+    color: black;
+}
+.tweets-user-rating{
+    margin-left: auto;
+    margin-right: 50px;
+}
+.tweets-block-profile-image{
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 22px;
+}
+.tweets-user-profile-picture{
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
+}
+.tweets-main-body{
+    margin-left: 75px;
+    
+}
+.tweets-main-body-desc{
+    margin-bottom: 15px;
+}
+.tweets-main-body-media{
+    max-width: 100%;
+    max-height: 500px;
+    border-radius: 20px;
+}
+
+.tweets-block-user-info p{
+    font-size: 20px;
+}
+
+.tweets-main-body p{
+    font-size: 20px;
+}
+.tweets-like-and-comments{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 200px;
+    margin-top: 15px;
+    padding-bottom: 15px;
+    text-decoration: none;
+}
+.tweets-like-and-number, .tweets-comment-and-number{
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+</style>
+<div class="tweets-main-block">
+    <div class="tweets-block-user-info">
+        <div class="tweets-block-profile-image">
+            <img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+        </div>
+        <div class="tweets-block-user-info">
+            <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
+            <p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p></a>
+            <h3>&#x2022;</h3>
+            </p>
+            <div style="display: flex; flex-direction: column;">
+                <p style="color:#666"><small>{{post.created_at}}</small></p>
+            </div>
+        </div>
+        <div class="tweets-user-rating">
+            asdasdsa
+        </div>
+    </div>
+    <div class="tweets-main-body">
+        {% if post.caption %}
+        <p class="tweets-main-body-desc">{{ post.caption }}</p>
+        {% endif %}
+
+        {% if post.image %}
+        <img src="{{post.image.url}}" alt="" class="tweets-main-body-media">
+        {% endif %}
+        <div class="tweets-like-and-comments">
+           
+          
+            <!-- Modal for comments -->
+            <div class="modal fade" id="commentModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal fade" id="commentModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                 <div class="modal-header">
+                                        <h5 class="modal-title" id="commentModalLabel">Comment</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Comment form -->
+                                        <form id="commentForm{{ post.id }}" method="post" action="{% url 'comment' post.id %}">
+                                         {% csrf_token %}
+                                            <textarea name="comment_text" class="form-control" rows="3" placeholder="Write your comment..."></textarea>
+                                            <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="comments-section mt-4">
+                            <h2>Comments:</h2>
+                            {% if comments %}
+                                {% for comment in comments %}
+                                    <div class="comment">
+                                        <p><strong>{{ comment.user.username }}</strong></p>
+                                        <p>{{ comment.text }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p>No comments yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
