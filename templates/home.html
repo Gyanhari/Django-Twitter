@@ -99,15 +99,15 @@
                         <div class="post-user-caption">
                             <label for="user-caption">Caption<sup style="color: red;user-select: none"></sup>: </label>
                             <textarea id="user-caption" name="caption" class="user-caption-content"
-                                placeholder="You Caption goes here"></textarea>
+                                placeholder="Your Caption goes here"></textarea>
                         </div>
                         <!-- <div class="post-budget">
                             <label for="user-budget">Budget:</label>
                             <input id="user-budget" name="budget" type="number" min="0">
                         </div> -->
                         <div class="user-post-media">
-                            <label for="user-media">Upload Picture</label>
-                            <input id="user-media" name="image_upload" type="file">
+                            <label for="user-media">Upload Pictures</label>
+                            <input id="user-media" name="image_upload" type="file" multiple>
                         </div>
                         <br>
                         <button class="post-submit-button" type="submit">Submit</button>
@@ -115,6 +115,7 @@
                 </div>
             </div>
         </div>
+        
         <div class="middle-container">
             {% block middle-block %}
 

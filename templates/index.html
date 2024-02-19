@@ -45,8 +45,15 @@ Home - SISS
                     {% endif %}
 
                     {% if post.image %}
-                    <img src="{{post.image.url}}" alt="" class="tweets-main-body-media">
+                    {% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
+                        <img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
+                    {% elif post.image.url|slice:'-3:' == 'png' %}
+                        <img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
+                    {% else %}
+                        <!-- Display other file types -->
+                        <a href="{{ post.image.url }}" target="_blank">{{ post.image.name }}</a>
                     {% endif %}
+                {% endif %}
                     <div class="tweets-like-and-comments">
                         <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
                             <div class="tweets-like-and-number">

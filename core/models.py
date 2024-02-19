@@ -30,9 +30,9 @@ class Post(models.Model):
     first_name = models.CharField(max_length=100, default=0)
     last_name = models.CharField(max_length=100, default=0)
     approved = models.BooleanField(default=False)
-    budget = models.DecimalField(
-        max_digits=10, decimal_places=2, null=True, blank=True
-    )  # Add the budget field
+    # budget = models.DecimalField(
+    #     max_digits=10, decimal_places=2, null=True, blank=True
+    # )  # Add the budget field
 
     def __str__(self):
         return self.user
@@ -87,6 +87,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)  # ForeignKey relationship with Profile model
 
     def __str__(self):
-        return f"Comment by {self.user.username} on {self.post.caption}"
+      return f"Comment by {self.user.username} on {self.post.caption}"

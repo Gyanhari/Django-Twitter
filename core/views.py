@@ -15,6 +15,8 @@ from .models import Profile, Post, LikePost, FollowersCount, Comment
 # Create your views here.
 
 
+from django.db.models import Q
+
 @login_required(login_url="signin")
 def index(request):
     try:
@@ -29,18 +31,19 @@ def index(request):
     feed = []
 
     user_following = FollowersCount.objects.filter(follower=request.user.username)
-    feed_list = Post.objects.filter(approved=True)  # Filter approved posts
 
-    for users in user_following:
-        user_following_list.append(users.user)
-
-    for usernames in user_following_list:
+    # Filter approved posts for followed users
+    for user_followed in user_following:
         feed_lists = Post.objects.filter(
-            user=usernames, approved=True
-        )  # Filter approved posts
-        feed.append(feed_lists)
+            user=user_followed.user, approved=True
+        )
+        feed.extend(feed_lists)
 
-    feed_list = list(chain(*feed))
+    # Convert the feed queryset to a list
+    feed_list = list(feed)
+
+    # Exclude posts uploaded by the currently logged-in user
+    feed_list = [post for post in feed_list if post.user != request.user]
 
     # user suggestion starts
     all_users = User.objects.all()
@@ -81,6 +84,7 @@ def index(request):
             "suggestions_username_profile_list": suggestions_username_profile_list[:4],
         },
     )
+
 
 
 @login_required(login_url="signin")
@@ -357,8 +361,13 @@ def add_comment(request, post_id):
         if not text:  # Check if the comment text is empty
             messages.error(request, "Please fill in the comment field.")
         else:
-            comment = Comment.objects.create(post=post, user=user, text=text)
+            # Get the user's profile
+            profile = Profile.objects.get(user=user)
+            
+            # Create the comment with the user's profile image
+            comment = Comment.objects.create(post=post, user=user, text=text, profile=profile)
             comment.save()
+            
             # After saving the new comment, refresh the comments queryset
             comments = Comment.objects.filter(post=post)
     
