@@ -76,15 +76,15 @@
                                     color: black;
                                     text-decoration: none;
                                 " href="/profile/{{user.username}}">
-                                <p class="user-profile-name">{{user.first_name}} {{user.last_name}}</p>
-                                <p class="user-profile-handle">@{{user.username}}</p>
+                                <p class="user-profile-name" style="font-size: medium;">{{user.first_name|title}} {{user.last_name|title}}</p>
+                                <p class="user-profile-handle" style="font-size: medium;">@{{user.username|title}}</p>
                             </a>
                         </div>
                         <div class="user-profile-more">
                             <!-- <img class="user-profile-more-image" src="{% static 'images/more.svg' %}" alt="more"> -->
                             <div class="user-profile-more-options"></div>
                         </div>
-
+                        <a href="/settings" data-ripple=""><img class="tweet-not-liked" src="{% static 'images/icons8-setting.svg' %}" alt=""></a>
                     </div>
                 </div>
                 <!-- </a> -->
