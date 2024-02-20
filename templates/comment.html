@@ -109,8 +109,9 @@ a{
     margin-bottom: 20px;
     padding: 15px;
     border-radius: 10px;
-    background-color: #f5f5f5;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f9fafb;
+    border:0px solid #cccccc ;
+    /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
     width: 100vh;
 }
 
@@ -154,7 +155,7 @@ a{
     resize: none;
     padding: 10px;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 10px;
     margin-bottom: 10px;
     font-size: 14px;
     line-height: 1.5;
@@ -162,11 +163,11 @@ a{
 
 /* Style for the comment submit button */
 .comment-submit-btn {
-    padding: 10px 20px;
-    background-color: #007bff;
+    padding: 10px 10px;
+    background-color: #7f56d9;
     color: #fff;
     border: none;
-    border-radius: 5px;
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -186,16 +187,16 @@ a{
         </div>
         <div class="tweets-block-user-info">
             <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
-            <p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p></a>
+            <p style="color:#666"><small>@{{post.first_name|title}} {{post.last_name|title}}</small></p></a>
             <h3>&#x2022;</h3>
             </p>
             <div style="display: flex; flex-direction: column;">
                 <p style="color:#666"><small>{{post.created_at}}</small></p>
             </div>
         </div>
-        <div class="tweets-user-rating">
+        <!-- <div class="tweets-user-rating">
             asdasdsa
-        </div>
+        </div> -->
     </div>
     <div class="tweets-main-body">
         {% if post.caption %}
@@ -233,7 +234,7 @@ a{
                             </div>
                         </div>
                         <div class="tweets-like-and-comments">
-                            <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
+                            <a href="{% url 'comment' post.id %}" class="flex items-center space-x-2">
                                 <div class="tweets-like-and-number">
                                     <img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
                                     <p style="color:black; text-decoration: none;" class="tweet-liked-number">
@@ -253,12 +254,13 @@ a{
                         
                         <div class="comments-section mt-4">
                             <h4>Comments:</h4>
+                            <!-- <p>{{comment.comment.count}}</p> -->
                             <div class="modal-body">
                                 <!-- Comment form -->
-                                <form id="commentForm{{ post.id }}" method="post" action="{% url 'comment' post.id %}" class="comment-form">
+                                <form id="commentForm{{ post.id }}" method="post" action="{% url 'comment' post.id %}" class="comment-form" style="display:flex; flex-direction: row;">
                                     {% csrf_token %}
-                                    <textarea name="comment_text" class="form-control comment-textarea" rows="3" placeholder="Write your comment..."></textarea>
-                                    <button type="submit" class="btn btn-primary comment-submit-btn">Submit</button>
+                                    <textarea name="comment_text" class="form-control comment-textarea" rows="1" placeholder="Write your comment..." style="width: 100vh;"></textarea>
+                                    <button type="submit" class="btn btn-primary comment-submit-btn" style="height: 42px; margin-left: 5px;"><img class="tweet-not-liked" src="{% static 'images/icons8-send-24.png' %}" alt=""></button>
                                 </form>
                             </div>
                             

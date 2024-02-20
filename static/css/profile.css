@@ -38,13 +38,13 @@
 .mid-profile-pic-image{
     width: 170px;
     height: 170px;
-    border: 5px solid #000000;
+    border: 3px solid #000000;
     border-radius: 100px;
 }
 .profile-user-information{
     position: relative;
     margin-top: 83px;
-    margin-left: 25px;
+    margin-left: 68px;
     display: flex;
     flex-direction: row;
 }

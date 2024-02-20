@@ -353,6 +353,7 @@ def admin_approval(request):
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(post=post)
+    comment_count = comments.count()
     
     if request.method == "POST":
         user = request.user
@@ -371,4 +372,4 @@ def add_comment(request, post_id):
             # After saving the new comment, refresh the comments queryset
             comments = Comment.objects.filter(post=post)
     
-    return render(request, "comment.html", {"post": post, "comments": comments})
+    return render(request, "comment.html", {"post": post, "comments": comments, "comment_count":comment_count})

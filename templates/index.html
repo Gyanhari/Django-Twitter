@@ -24,7 +24,7 @@ Home - SISS
             <div class="tweets-main-block">
                 <div class="tweets-block-user-info">
                     <div class="tweets-block-profile-image">
-                        <img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+                        <img class="tweets-user-profile-picture" src="{{post.user_profile.profile_image.url}}" alt="">
                     </div>
                     <div class="tweets-block-user-info">
                         <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
@@ -35,9 +35,9 @@ Home - SISS
                             <p style="color:#666"><small>{{post.created_at}}</small></p>
                         </div>
                     </div>
-                    <div class="tweets-user-rating">
+                    <!-- <div class="tweets-user-rating">
                         asdasdsa
-                    </div>
+                    </div> -->
                 </div>
                 <div class="tweets-main-body">
                     {% if post.caption %}
@@ -69,15 +69,10 @@ Home - SISS
                                 </p>
                             </div>
                         </a>
-                        <!-- <a href="{% url 'comment' post.id %}" class="comment-link">Comment</a>
-
-                        <div class="tweets-comment-and-number">
-                            <img src="{% static 'images/comment.svg' %}" alt="" class="tweets-comment-image">
-                            <a href="#" class="comment-link" data-toggle="modal" data-target="#commentModal{{ post.id }}">Comment</a>
-                        </div>
-                        </a> -->
-                        <!-- Modal for comments -->
-                        <a href="{% url 'comment' post.id %}">comment</a>
+                        <!-- Yo comment ko icon dekhauna lai  -->
+                        <a href="{% url 'comment' post.id %}">
+                            <img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
+                        </a>
                     </div>
                 </div>
             </div>
