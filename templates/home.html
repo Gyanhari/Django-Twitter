@@ -26,7 +26,7 @@
                                 <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">
                                 </div>
                             </a>
-                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'index' %}"><b>Home</b></a>
+                            <div class="nav-image-text" ><a class="navbar-links" href="{% url 'index' %}"><b>Home</b></a>
                             </div>
                             {% endblock %}
                         </li>
@@ -68,7 +68,7 @@
                 <div class="user-information">
                     <a href="/profile/{{user.username}}">
                         <div class="user-profile-pic-div"><img class="user-profile-pic"
-                                src="{{user_profile.profileimg.url}}" alt=""></div>
+                                src="{% block profile %}{% endblock profile %}" alt=""></div>
                     </a>
                     <div class="user-profile-information">
                         <div>
@@ -84,7 +84,7 @@
                             <!-- <img class="user-profile-more-image" src="{% static 'images/more.svg' %}" alt="more"> -->
                             <div class="user-profile-more-options"></div>
                         </div>
-                        <a href="/settings" data-ripple=""><img class="tweet-not-liked" src="{% static 'images/icons8-setting.svg' %}" alt=""></a>
+                        <a href="/settings" data-ripple=""><img class="tweet-not-liked" src="{% static 'images/icons8-admin-settings-male-24.png' %}" alt=""></a>
                     </div>
                 </div>
                 <!-- </a> -->
@@ -101,10 +101,10 @@
                             <textarea id="user-caption" name="caption" class="user-caption-content"
                                 placeholder="Your Caption goes here"></textarea>
                         </div>
-                        <!-- <div class="post-budget">
+                        <div class="post-budget">
                             <label for="user-budget">Budget:</label>
-                            <input id="user-budget" name="budget" type="number" min="0">
-                        </div> -->
+                            <input id="user-budget" name="budget" type="text" min="0">
+                        </div>
                         <div class="user-post-media">
                             <label for="user-media">Upload Pictures</label>
                             <input id="user-media" name="image_upload" type="file" multiple>
@@ -145,7 +145,17 @@
                                 <p><h3>&#x2022;</h3></p>
                                 <p>{{post.created_at}}</p>
                             </div>
-                            <div class="right-top-post-content">{{post.caption}}</div>
+                            {% if post.caption %}
+                             {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                                <p class="tweets-main-body-desc">
+                                 {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                                 <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                                </p>
+                        <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+                        {% else %}
+                                <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                        {% endif %}
+                        {% endif %}
                         </div>
                         {% if post.image %}
                         <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>

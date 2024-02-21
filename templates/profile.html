@@ -9,11 +9,13 @@ Profile - SISS
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
-{% block nav-profile %}
+<!-- {% block nav-profile %}
 <div><img class="nav-component-img-active size-big-vayo" src="{% static 'images/profile.svg' %}" alt=""></div>
 <div class="nav-image-text"><a class="navbar-links-active" href=""><b>Profile</b></a></div>
+{% endblock %} -->
+{% block profile %}
+{{user_profile_picture_url}}
 {% endblock %}
-
 
 {% block middle-block %}
 <div class="middle-profile-main-container">
@@ -28,63 +30,59 @@ Profile - SISS
 		</div>
 	</div>
 	<div class="profile-mid-cover-and-profile">
-		<div class="mid-cover-pic-div">
-			<img class="mid-cover-pic-image" src="{{user_profile.profileimg.url}}" alt="">
-		</div>
 		<div class="mid-profile-pic-div">
 			<img class="mid-profile-pic-image" src="{{user_profile.profileimg.url}}" alt="Chad Women">
-		</div>
-		<div class="profile-user-information">
-			<div class="profile_username">
-				<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}} {{user_profile.user.last_name|title}}</strong>
-					<!-- <small>@{{user_profile.user.username|title}}</small> -->
-				</p>
-				<!-- <p class="mid-profile-user-username"></p> -->
-				<p><small>{{user_profile.bio}}</small></p>
-				<p><small>{{ user_email }}</small></p>
-	
-			</div>
-			<form action="/follow" method="POST">
-				{% csrf_token %}
-				<div class="add-btn">
-
-					<div class="number-of-follower">
-						{% if user_post_length == 0 %}
-						<span style="color: black; font-size: 20px;">No Post</span>
-						{% elif user_post_length == 1 %}
-						<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
-						{% else %}
-						<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
-						{% endif %}
-
-						{% if user_followers == 0 or user_followers == 1 %}
-						<span style="color: black; font-size: 20px;">{{user_followers}} follower</span>
-						{% else %}
-						<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
-						{% endif %}
-
-
-						<span style="color: black; font-size: 20px;">{{user_following}} following</span>
+			<div class="profile-user-information">
+				<div class="profile_username">
+					<form action="/follow" method="POST">
+						{% csrf_token %}
+						<div class="username_follow">
+						<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}} {{user_profile.user.last_name|title}}<small>    ({{user_profile.location}})</small></strong></p><br>
 						{% if user_object.username == user.username %}
-						<!-- <div class="setting-and-edit-profile">
-							<button><a href="/settings" data-ripple="">Edit Profile</a></button>
-						</div> -->
-						{% else %}
-						<div class="setting-and-edit-profile">
-						<a data-ripple=""><button class="follow-and-unfollow" type="submit">{{button_text}}</button></a>
-						<!-- <button type="submit">Chat</button> -->
+								{% else %}
+								<div class="setting-and-edit-profile">
+								<a data-ripple=""><button class="follow-and-unfollow" type="submit">{{button_text}}</button></a>
+								<!-- <button type="submit">Chat</button> -->
+								</div>
+								{% endif %}
 					</div>
-						{% endif %}
+					<br><div class="add-btn">
+		
+						<div class="number-of-follower">
+							{% if user_post_length == 0 %}
+							<span style="color: black; font-size: 20px;">No Post</span>
+							{% elif user_post_length == 1 %}
+							<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
+							{% else %}
+							<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
+							{% endif %}
+	
+							{% if user_followers == 0 or user_followers == 1 %}
+							<span style="color: black; font-size: 20px;">{{user_followers}} follower</span>
+							{% else %}
+							<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
+							{% endif %}
+	
+	
+							<span style="color: black; font-size: 20px;">{{user_following}} following</span>
+						</div>
+	
+						<input type="hidden" value="{{user.username}}" name="follower" />
+						<input type="hidden" value="{{user_object.username}}" name="user" />
+	
+	
+	
 					</div>
-
-					<input type="hidden" value="{{user.username}}" name="follower" />
-					<input type="hidden" value="{{user_object.username}}" name="user" />
-
-
-
+					<br><p><small>{{user_profile.bio}}</small></p><br>
+				
+	
+						
+					</form>
 				</div>
-			</form>
+			</div>
 		</div>
+		
+		
 	</div>
 	<div></div>
 	{% for post in user_posts %}
@@ -111,9 +109,25 @@ Profile - SISS
 		</div>
 		<div class="tweets-main-body">
 			{% if post.caption %}
-			<p class="tweets-main-body-desc">{{ post.caption }}</p>
-			{% endif %}
-			
+                    <!-- Assuming post.caption contains the text you want to display -->
+                    {% if post.caption %}
+                    {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                        <p class="tweets-main-body-desc" style="font-size: medium;">
+                            {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                            <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue; text-decoration: none;">See more</a>
+                        </p>
+                        <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+                    {% else %}
+                        <p class="tweets-main-body-desc" style="font-size: medium;">{{ post.caption }}</p>
+                    {% endif %}
+                    {% endif %}
+
+                    {% endif %}
+					{% if post.budget %}
+					<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
+				{% else %}
+		
+				{% endif %}
 
 			{% if post.image %}
 			{% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
@@ -125,7 +139,9 @@ Profile - SISS
 				<a href="{{ post.image.url }}" target="_blank" style="text-decoration: none; color: blue;">{{ post.image.name }}</a>
 			{% endif %}
 		{% endif %}
+
 		
+
 
 			<div class="tweets-like-and-comments">
 				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2" style="text-decoration:  none;">
@@ -141,8 +157,11 @@ Profile - SISS
 						{% endif %}</p>
 					</div>
 				</a>
-				<a href="{% url 'comment' post.id %}" style="text-decoration: none; color: black;">
+				<a href="{% url 'comment' post.id %}"  style="display: flex; flex-direction: row; gap: 10px; text-decoration: none; color: black;">
 					<img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
+					<p> {{ post.comment_count }}</p>
+					<img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt="" style="height: 22px; width: 22px; margin-left: 50px;">
+					<p>{{ post.view_count }}</p>
 				</a>
 
 

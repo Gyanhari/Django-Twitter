@@ -1,20 +1,15 @@
 import random
 from itertools import chain
-
+from django.contrib.sessions.models import Session
+from django.utils import timezone
+from dateutil.parser import parse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, auth
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
-
-
-from .models import Profile, Post, LikePost, FollowersCount, Comment
-
-
-# Create your views here.
-
-
+from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost
 from django.db.models import Q
 
 @login_required(login_url="signin")
@@ -23,10 +18,12 @@ def index(request):
         user_object = User.objects.get(username=request.user.username)
         user_profile = Profile.objects.get(user=user_object)
         user_email = user_object.email
+        user_profile_image_url = user_profile.profileimg.url  
     except Profile.DoesNotExist:
-        # If the profile doesn't exist, create a new one
         user_profile = Profile.objects.create(user=user_object)
         user_email = ""
+        user_profile_image_url = ""  
+
     user_following_list = []
     feed = []
 
@@ -39,11 +36,20 @@ def index(request):
         )
         feed.extend(feed_lists)
 
-    # Convert the feed queryset to a list
+
     feed_list = list(feed)
 
-    # Exclude posts uploaded by the currently logged-in user
+   # Fetching budget for each post
+    budgets = [post.budget for post in feed_list]
+
     feed_list = [post for post in feed_list if post.user != request.user]
+
+    for post in feed_list:
+        post.comment_count = Comment.objects.filter(post=post).count()
+        post.view_count = post.view_count  # Assuming view_count is already present in the Post model
+
+        post_user_profile = Profile.objects.get(user__username=post.user)
+        post.user_profile_image_url = post_user_profile.profileimg.url
 
     # user suggestion starts
     all_users = User.objects.all()
@@ -80,10 +86,15 @@ def index(request):
         {
             "user_profile": user_profile,
             "user_email": user_email,
+            "user_profile_image_url": user_profile_image_url,  # Pass profile image URL of logged-in user
             "posts": feed_list,
             "suggestions_username_profile_list": suggestions_username_profile_list[:4],
+            "budgets": budgets,
         },
     )
+
+
+
 
 
 
@@ -95,6 +106,7 @@ def upload(request):
         caption = request.POST.get("caption")
         first_name = request.user.first_name
         last_name = request.user.last_name
+        budget = request.POST.get('budget')
 
         if image or caption:
             new_post = Post.objects.create(
@@ -103,6 +115,7 @@ def upload(request):
                 caption=caption,
                 first_name=first_name,
                 last_name=last_name,
+                budget=budget,
             )
             new_post.save()
 
@@ -157,18 +170,14 @@ def like_post(request):
         post.save()
         return redirect("/")
 
-
 @login_required(login_url="signin")
 def profile(request, pk):
     user_object = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_object)
     user_posts = Post.objects.filter(user=pk)
-    user_post_length = Post.objects.filter(approved=True).count()
+    user_post_length = Post.objects.filter(approved=True, user=user_profile.user).count()
 
-    follower = request.user.username
-    user = pk
-
-     # Fetch followers and following users
+    # Fetch followers and following users
     followers = FollowersCount.objects.filter(user=pk).values_list("follower", flat=True)
     following = FollowersCount.objects.filter(follower=pk).values_list("user", flat=True)
 
@@ -176,16 +185,42 @@ def profile(request, pk):
     follower_users = User.objects.filter(username__in=followers)
     following_users = User.objects.filter(username__in=following)
 
-    # Check if the current user is following the profile user
-    if FollowersCount.objects.filter(follower=follower, user=user).exists():
-        # If the user is followed, show all posts
-        user_posts_to_display = user_posts
+    # Calculate total view count for all posts of the user
+    total_view_count = sum(post.view_count for post in user_posts)
+
+    # Fetching budget for each post
+    budgets = [post.budget for post in user_posts]
+
+    # Check if the logged-in user is viewing their own profile
+    if request.user.username == pk:
+        # If the logged-in user is viewing their own profile, show all approved posts
+        user_posts_to_display = user_posts.filter(approved=True)
+        user_profile_picture_url = user_profile.profileimg.url  # Profile image URL of the logged-in user
     else:
-        # If the user is not followed, show the latest 4 posts
-        user_posts_to_display = user_posts.order_by("-created_at")[:4]
+        # If the logged-in user is viewing another user's profile
+        # Check if the user is followed
+        if FollowersCount.objects.filter(follower=request.user.username, user=pk).exists():
+            # If the user is followed, show all posts
+            user_posts_to_display = user_posts
+        else:
+            # If the user is not followed, show only approved posts
+            user_posts_to_display = user_posts.filter(approved=True).order_by("-created_at")[:4]
+        visited_user_profile = Profile.objects.get(user=request.user)  
+        user_profile_picture_url = visited_user_profile.profileimg.url  
+
+    for post in user_posts_to_display:
+        post.comment_count = Comment.objects.filter(post=post).count()
 
     user_followers = len(FollowersCount.objects.filter(user=pk))
     user_following = len(FollowersCount.objects.filter(follower=pk))
+
+    if request.user.username != pk:
+        if FollowersCount.objects.filter(follower=request.user.username, user=pk).exists():
+            button_text = "Unfollow"
+        else:
+            button_text = "Follow"
+    else:
+        button_text = None
 
     context = {
         "user_object": user_object,
@@ -196,8 +231,16 @@ def profile(request, pk):
         "user_following": user_following,
         "followers": follower_users,
         "following": following_users,
+        "button_text": button_text,  
+        "user_profile_picture_url": user_profile_picture_url,  
+        "total_view_count": total_view_count,  # Include total view count in the context
+        "budgets": budgets,
     }
     return render(request, "profile.html", context)
+
+
+
+
 
 
 @login_required(login_url="signin")
@@ -227,19 +270,23 @@ def settings(request):
         if request.FILES.get("image") == None:
             image = user_profile.profileimg
             bio = request.POST["bio"]
+            # email = request.POST["email"]
             location = request.POST["location"]
 
             user_profile.profileimg = image
             user_profile.bio = bio
+            # user_profile.email = email
             user_profile.location = location
             user_profile.save()
         if request.FILES.get("image") != None:
             image = request.FILES.get("image")
             bio = request.POST["bio"]
+            # email = request.POST["email"]
             location = request.POST["location"]
 
             user_profile.profileimg = image
             user_profile.bio = bio
+            # user_profile.email = email
             user_profile.location = location
             user_profile.save()
 
@@ -273,11 +320,9 @@ def signup(request):
                 )
                 user.save()
 
-                # log user in and redirect to settings page
                 user_login = auth.authenticate(username=username, password=password)
                 auth.login(request, user_login)
 
-                # create a Profile object for the new user
                 user_model = User.objects.get(username=username)
                 new_profile = Profile.objects.create(
                     user=user_model, id_user=user_model.id
@@ -332,13 +377,12 @@ def admin_approval(request):
                 post.delete()  # Or any other action you want for rejection
 
         except ObjectDoesNotExist:
-            # Handle the case where the post does not exist
             pass
 
-    # Filter all PendingPost objects
+
     pending_posts = Post.objects.all()
 
-    # Separate pending posts into approved and not approved
+
     approved_posts = pending_posts.filter(approved=True)
     pending_posts = pending_posts.filter(approved=False)
 
@@ -353,23 +397,49 @@ def admin_approval(request):
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(post=post)
-    comment_count = comments.count()
+    comment_count = comments.count()  
+    
+    # Check if the user has already viewed this post during this session
+    session_key = request.session.session_key
+    viewed_posts = request.session.get('viewed_posts', [])
+
+     # Check if the user has already viewed this post recently
+    user = request.user
+    if not ViewedPost.objects.filter(post=post, user=user, viewed_at__gte=timezone.now() - timezone.timedelta(days=1)).exists():
+        # Increment the view count of the post
+        post.view_count += 1
+        post.save()
+
+        # Record the view in the database
+        viewed_post = ViewedPost.objects.create(post=post, user=user)
+        viewed_post.save()
+
+    logged_in_user_profile_picture_url = Profile.objects.get(user=request.user).profileimg.url
     
     if request.method == "POST":
         user = request.user
         text = request.POST.get("comment_text")
         
-        if not text:  # Check if the comment text is empty
+        if not text:  
             messages.error(request, "Please fill in the comment field.")
         else:
-            # Get the user's profile
             profile = Profile.objects.get(user=user)
-            
-            # Create the comment with the user's profile image
+            post_user_profile_picture_url = profile.profileimg.url
             comment = Comment.objects.create(post=post, user=user, text=text, profile=profile)
             comment.save()
             
-            # After saving the new comment, refresh the comments queryset
             comments = Comment.objects.filter(post=post)
-    
-    return render(request, "comment.html", {"post": post, "comments": comments, "comment_count":comment_count})
+            comment_count = comments.count()
+    else:
+        post_user_profile_picture_url = None
+            
+    return render(request, "comment.html", {
+        "post": post, 
+        "comments": comments, 
+        "comment_count": comment_count,
+        "logged_in_user_profile_picture_url": logged_in_user_profile_picture_url,
+        "post_user_profile_picture_url": post_user_profile_picture_url,
+        "budget": post.budget,  # Include the budget in the context
+    })
+
+

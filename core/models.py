@@ -14,7 +14,9 @@ class Profile(models.Model):
     profileimg = models.ImageField(
         upload_to="profile_images", default="blank-profile-picture.png"
     )
+    coverimg = models.ImageField(upload_to="cover_images",default="blank-profile-picture.png")
     location = models.CharField(max_length=100, blank=True)
+    # email = models.EmailField(max_length=100, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -30,9 +32,9 @@ class Post(models.Model):
     first_name = models.CharField(max_length=100, default=0)
     last_name = models.CharField(max_length=100, default=0)
     approved = models.BooleanField(default=False)
-    # budget = models.DecimalField(
-    #     max_digits=10, decimal_places=2, null=True, blank=True
-    # )  # Add the budget field
+    view_count = models.IntegerField(default=0)
+    budget = models.TextField(default='')
+
 
     def __str__(self):
         return self.user
@@ -53,25 +55,6 @@ class FollowersCount(models.Model):
     def __str__(self):
         return self.user
 
-
-# class PostApproval(models.Model):
-#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-#     approved = models.BooleanField(default=False)
-
-#     def __str__(self):
-#         return f"Post: {self.post_id}, Approved: {self.approved}"
-
-
-# class ApprovedPost(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     caption = models.CharField(max_length=255)
-#     image = models.ImageField(upload_to='posts/')
-#     # Other fields and methods as needed...
-
-#     def __str__(self):
-#         return self.caption
-
-
 class PendingPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     caption = models.CharField(max_length=255)
@@ -91,3 +74,11 @@ class Comment(models.Model):
 
     def __str__(self):
       return f"Comment by {self.user.username} on {self.post.caption}"
+    
+class ViewedPost(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    viewed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('post', 'user')

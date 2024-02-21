@@ -178,11 +178,24 @@ a{
 </style>
 {% endblock %}
 
+
+{% block profile %}
+{{logged_in_user_profile_picture_url}}
+{% endblock %}
+
+
 {% block middle-block %}
 <div class="tweets-main-block">
     <div class="tweets-block-user-info">
         <div class="tweets-block-profile-image">
-            <img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+            {% if request.user == post.user %}
+                <img class="tweets-user-profile-picture" src="{{ logged_in_user_profile_picture_url }}" alt="">
+            {% else %}
+                <div class="tweets-block-profile-image">
+                    <img class="tweets-user-profile-picture" src="{{ logged_in_user_profile_picture_url }}" alt="">
+                </div>
+            {% endif %}
+
         </div>
         <div class="tweets-block-user-info">
             <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
@@ -199,8 +212,13 @@ a{
     </div>
     <div class="tweets-main-body">
         {% if post.caption %}
-        <p class="tweets-main-body-desc">{{ post.caption }}</p>
+        <p class="tweets-main-body-desc" style="font-size: medium; line-height: 1.7;">{{ post.caption }}</p>
+        {% if budget %}
+        <p style="font-size: medium;"><b>Budget:</b> {{ budget }}</p><br>
         {% endif %}
+        {% endif %}
+
+        
 
         {% if post.image %}
 			{% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
@@ -212,6 +230,7 @@ a{
 				<a href="{{ post.image.url }}" target="_blank">{{ post.image.name }}</a>
 			{% endif %}
 		{% endif %}
+
         <div class="tweets-like-and-comments">
            
           
@@ -221,15 +240,6 @@ a{
                     <div class="modal-content">
                         <div class="modal fade" id="commentModal{{ post.id }}" tabindex="-1" role="dialog" aria-labelledby="commentModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
-                                <!-- <div class="modal-content">
-                                 <div class="modal-header">
-                                        <h5 class="modal-title" id="commentModalLabel">Comment</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    
-                                </div> -->
                             </div>
                         </div>
                         <div class="tweets-like-and-comments">
@@ -246,18 +256,26 @@ a{
                                     {% endif %}</p>
                                 </div>
                             </a>
-                            <!-- <a href="{% url 'comment' post.id %}">comment</a> -->
+                            <div class="comment_align">
+                                <a href="{% url 'comment' post.id %}"  style="display: flex; flex-direction: row; gap: 10px;">
+                                    <img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
+                                    <p> {{ comment_count }}</p>
+                                    <img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt="" style="height: 22px; width: 22px; margin-left: 50px;">
+                                    <p>{{ post.view_count }}</p>
+                                </a>
+                            </div>
             
             
                         </div>
                         
                         <div class="comments-section mt-4">
-                            <h4>Comments:</h4>
+                            <h4>Comments:</h4><br>
                             <!-- <p>{{comment.comment.count}}</p> -->
                             <div class="modal-body">
                                 <!-- Comment form -->
                                 <form id="commentForm{{ post.id }}" method="post" action="{% url 'comment' post.id %}" class="comment-form" style="display:flex; flex-direction: row;">
                                     {% csrf_token %}
+                                    <img src="{{logged_in_user_profile_picture_url}}" style="height: 45px; width: 45px; border-radius: 45px; margin-right: 10px;">
                                     <textarea name="comment_text" class="form-control comment-textarea" rows="1" placeholder="Write your comment..." style="width: 100vh;"></textarea>
                                     <button type="submit" class="btn btn-primary comment-submit-btn" style="height: 42px; margin-left: 5px;"><img class="tweet-not-liked" src="{% static 'images/icons8-send-24.png' %}" alt=""></button>
                                 </form>
@@ -265,12 +283,22 @@ a{
                             
                             {% if comments %}
                                 {% for comment in comments %}
-                                    <div class="comment">
-                                        <p>{{ comment.text }}</p><br>
-                                        <div class="comment_profile_username">
-                                        <!-- <img src="{{ comment.profileimg.url }}" alt="Profile Image"> -->
-                                        <a href="/profile/{{post.user}}"><p style="font-weight: 600;">{{ comment.user.username|title }}</p></div></a>
+                                <div class="comment">
+                                    <p>{{ comment.text }}</p><br>
+                                    <div class="comment_profile_username">
+                                        {% if comment.user == request.user %}
+                                        <!-- Display profile image of logged-in user -->
+                                        <img src="{{ logged_in_user_profile_picture_url }}" alt="Profile Image" style="width: 25px; height: 25px; border-radius: 50%; margin-right: 10px;">
+                                    {% elif comment.post_user_profile_picture_url %}
+                                        <!-- Display profile image of the user who posted the comment -->
+                                        <img src="{{ comment.post_user_profile_picture_url }}" alt="Profile Image" style="width: 45px; height: 45px; border-radius: 50%;">
+                                    {% endif %}
+
+                                        <a href="/profile/{{ comment.user.username }}"><p style="font-weight: 600;">{{ comment.user.username|title }}</p></a>
                                     </div>
+                                </div>
+                                
+                                
                                 {% endfor %}
                             {% else %}
                                 <p>No comments yet.</p>

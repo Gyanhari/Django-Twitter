@@ -9,6 +9,10 @@ Home - SISS
 <link rel="stylesheet" href="{% static 'css/index.css' %}">
 {% endblock %}
 
+{% block profile %}
+{{user_profile_image_url}}
+{% endblock %}
+
 {% block nav-home %}
 <a href="{% url 'index' %}">
     <div><img class="nav-component-img-active" src="{% static 'images/home.svg' %}" alt=""></div>
@@ -24,7 +28,8 @@ Home - SISS
             <div class="tweets-main-block">
                 <div class="tweets-block-user-info">
                     <div class="tweets-block-profile-image">
-                        <img class="tweets-user-profile-picture" src="{{post.user_profile.profile_image.url}}" alt="">
+                        <img class="tweets-user-profile-picture" src="{{ post.user_profile_image_url }}" alt="">
+                        <!-- <p>Profile Image URL: {{ post.user_profile.profileimg.url }}</p> -->
                     </div>
                     <div class="tweets-block-user-info">
                         <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
@@ -41,9 +46,23 @@ Home - SISS
                 </div>
                 <div class="tweets-main-body">
                     {% if post.caption %}
-                    <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                    <!-- Assuming post.caption contains the text you want to display -->
+                    {% if post.caption %}
+                    {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                        <p class="tweets-main-body-desc">
+                            {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                            <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                        </p>
+                        <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+                    {% else %}
+                        <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                    {% endif %}
                     {% endif %}
 
+                    {% endif %}
+                    {% if post.budget %}
+					<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
+				    {% endif %}
                     {% if post.image %}
                     {% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
                         <img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
@@ -70,9 +89,14 @@ Home - SISS
                             </div>
                         </a>
                         <!-- Yo comment ko icon dekhauna lai  -->
-                        <a href="{% url 'comment' post.id %}">
+                        <div class="comment_align">
+                        <a href="{% url 'comment' post.id %}"  style="display: flex; flex-direction: row; gap: 10px;">
                             <img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
+                            <p> {{ post.comment_count }}</p>
+                            <img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt="" style="height: 22px; width: 22px; margin-left: 50px;">
+                            <p>{{ post.view_count }}</p>
                         </a>
+                    </div>
                     </div>
                 </div>
             </div>

@@ -63,9 +63,9 @@ a{
     font-size: 20px;
 }
 
-.tweets-main-body p{
+/* .tweets-main-body p{
     font-size: 20px;
-}
+} */
 .tweets-like-and-comments{
     display: flex;
     flex-direction: row;
