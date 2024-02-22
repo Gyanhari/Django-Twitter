@@ -1,5 +1,6 @@
 from django.urls import path,  re_path
 from . import views
+from .views import delete_post
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -14,4 +15,7 @@ urlpatterns = [
     path('logout', views.logout, name='logout'),
     path('admin_approval', views.admin_approval, name='admin_approval'),
     re_path(r'^comment/(?P<post_id>[\w-]+)/$', views.add_comment, name='comment'),
+    path('delete/<uuid:post_id>/', delete_post, name='delete_post'),
+    path('comment/delete/<int:comment_id>/', views.delete_comment, name='delete_comment'),
+
 ]

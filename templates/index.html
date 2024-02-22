@@ -22,7 +22,7 @@ Home - SISS
 
 {% block middle-block %}
 <div class="home-page-title" style="font-size: 25px;">Home</div>
-{% for post in posts reversed %}
+{% for post in posts|dictsortreversed:"created_at" %}
     {% if post.approved %} <!-- Check if the post is approved -->
         <div class="main-tweets-container">
             <div class="tweets-main-block">
@@ -32,7 +32,7 @@ Home - SISS
                         <!-- <p>Profile Image URL: {{ post.user_profile.profileimg.url }}</p> -->
                     </div>
                     <div class="tweets-block-user-info">
-                        <p><strong><a href="/profile/{{post.user}}">{{post.user|title}}</a></strong></p>
+                        <p><strong><a href="/profile/{{post.user}}"><small>{{post.user|title}}</small></a></strong></p>
                         <p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p></a>
                         <h3>&#x2022;</h3>
                         </p>

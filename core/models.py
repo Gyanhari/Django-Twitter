@@ -34,6 +34,7 @@ class Post(models.Model):
     approved = models.BooleanField(default=False)
     view_count = models.IntegerField(default=0)
     budget = models.TextField(default='')
+    rating = models.FloatField(default=0)
 
 
     def __str__(self):

@@ -11,6 +11,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
 from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost
 from django.db.models import Q
+from django.urls import reverse
+from .forms import RatingForm
+from django.db.models import Avg
 
 @login_required(login_url="signin")
 def index(request):
@@ -176,6 +179,7 @@ def profile(request, pk):
     user_profile = Profile.objects.get(user=user_object)
     user_posts = Post.objects.filter(user=pk)
     user_post_length = Post.objects.filter(approved=True, user=user_profile.user).count()
+    user_email = request.user.email
 
     # Fetch followers and following users
     followers = FollowersCount.objects.filter(user=pk).values_list("follower", flat=True)
@@ -235,6 +239,7 @@ def profile(request, pk):
         "user_profile_picture_url": user_profile_picture_url,  
         "total_view_count": total_view_count,  # Include total view count in the context
         "budgets": budgets,
+        "user_email" : user_email,
     }
     return render(request, "profile.html", context)
 
@@ -393,6 +398,12 @@ def admin_approval(request):
     )
 
 
+
+
+from django.db.models import Avg
+
+from django.db.models import Avg
+
 @login_required(login_url="signin")
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -416,9 +427,14 @@ def add_comment(request, post_id):
 
     logged_in_user_profile_picture_url = Profile.objects.get(user=request.user).profileimg.url
     
+    post_user_profile_picture_url = None  
+
+    
     if request.method == "POST":
         user = request.user
         text = request.POST.get("comment_text")
+
+
         
         if not text:  
             messages.error(request, "Please fill in the comment field.")
@@ -430,8 +446,10 @@ def add_comment(request, post_id):
             
             comments = Comment.objects.filter(post=post)
             comment_count = comments.count()
+            
     else:
-        post_user_profile_picture_url = None
+        # Create a new instance of the rating form
+        rating_form = RatingForm()
             
     return render(request, "comment.html", {
         "post": post, 
@@ -439,7 +457,43 @@ def add_comment(request, post_id):
         "comment_count": comment_count,
         "logged_in_user_profile_picture_url": logged_in_user_profile_picture_url,
         "post_user_profile_picture_url": post_user_profile_picture_url,
-        "budget": post.budget,  # Include the budget in the context
+        "budget": post.budget, 
+
     })
 
+
+
+
+
+
+from django.contrib import messages
+
+@login_required(login_url="signin")
+def delete_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    
+    # Check if the post belongs to the logged-in user
+    if post.user == request.user.username:
+        # Delete the post
+        post.delete()
+        messages.success(request, "Post deleted successfully.")
+    else:
+        messages.error(request, "You are not authorized to delete this post.")
+    
+    return redirect("profile", pk=request.user.username)
+
+@login_required(login_url="signin")
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    
+    # Check if the comment belongs to the logged-in user
+    if comment.user == request.user:
+        # Delete the comment
+        comment.delete()
+        messages.success(request, "Comment deleted successfully.")
+    else:
+        messages.error(request, "You are not authorized to delete this comment.")
+    
+    # Redirect back to the post detail page or any appropriate page
+    return redirect(reverse("comment", kwargs={"post_id": comment.post.id}))
 
