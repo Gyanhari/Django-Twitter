@@ -17,5 +17,8 @@ urlpatterns = [
     re_path(r'^comment/(?P<post_id>[\w-]+)/$', views.add_comment, name='comment'),
     path('delete/<uuid:post_id>/', delete_post, name='delete_post'),
     path('comment/delete/<int:comment_id>/', views.delete_comment, name='delete_comment'),
-
+    path('delete_user', views.delete_user, name='delete_user'),
+    path('post_details/<uuid:post_id>/', views.post_details, name='post_details'),
+    path('user_posts/<int:user_id>/', views.user_posts, name='user_posts'),
+    # path('viewed_users/<uuid:post_id>/', views.viewed_users, name='viewed_users'),
 ]

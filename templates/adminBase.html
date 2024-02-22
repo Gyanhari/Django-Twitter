@@ -17,7 +17,7 @@
             color: white;
         }
         .rightcontainer{
-            margin-left: 30px;
+            margin-left: 200px;
         }
         .web-logo{
             color: white;
@@ -39,8 +39,9 @@
                     <ul class="nav-ul">
                         <li class="nav-ul-li">
                             {% block nav-home %}
-                            <a href="{% url 'index' %}">
-                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">
+                            <a href="{% url 'delete_user' %}">
+
+                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">Users
                                 </div>
                             </a>
 
@@ -57,9 +58,9 @@
                     </ul>
                 </nav>
             </div>
-            </div>
             <div class="rightcontainer">
                 {% block rightcontainer %}{% endblock rightcontainer %}
+            </div>
             </div>
         </div>
 </body>

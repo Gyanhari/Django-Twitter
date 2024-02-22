@@ -2,26 +2,48 @@
 {% load static %}
 
 {% block style %}
+<style>
+    table {
+        width: 100vh;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
 {% endblock style %}
     
 {% block rightcontainer %}
 <h1>Delete Users</h1>
     
-    <ul>
-        {% for user in users %}
-        <li>
-            <strong>User ID:</strong> {{ user.id }}<br>
-            <strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}<br>
-            <strong>Email:</strong> {{ user.email }}<br>
-            <strong>username:</strong> {{user.username}}<br>
-            
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="user_id" value="{{ user.id }}">
-                <button type="submit">Delete User</button>
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+<table>
+  <tr>
+    <th>User ID</th>
+    <th>Name</th>
+    <th>Email</th>
+    <th>Username</th>
+    <th>Action</th>
+  </tr>
+  {% for user in users %}
+  <tr>
+    <td>{{ user.id }}</td>
+    <td><a href="{% url 'user_posts' user.id %}">{{ user.first_name|title }} {{ user.last_name|title }}</a></td>
+    <td>{{ user.email }}</td>
+    <td>{{ user.username }}</td>
+    <td>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ user.id }}">
+            <button type="submit">Delete User</button>
+        </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
 
 {% endblock rightcontainer %}

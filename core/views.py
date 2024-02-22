@@ -426,6 +426,13 @@ def delete_user(request):
         {"users": users},
     )
 
+@staff_member_required
+def user_posts(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    user_posts = Post.objects.filter(user=user)
+    user_profile = get_object_or_404(Profile, user=user)
+    
+    return render(request, "user_posts.html", {"user": user, "user_profile": user_profile, "user_posts": user_posts})
 
 
 @login_required(login_url="signin")
@@ -520,3 +527,40 @@ def delete_comment(request, comment_id):
     
     # Redirect back to the post detail page or any appropriate page
     return redirect(reverse("comment", kwargs={"post_id": comment.post.id}))
+
+
+
+
+@staff_member_required
+def post_details(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    comments = Comment.objects.filter(post=post)
+    likes = LikePost.objects.filter(post_id=post_id)
+
+    # Fetch user information for each like
+    liked_users = User.objects.filter(username__in=[like.username for like in likes])
+
+    # Combine user information with likes
+    likes_with_users = [(like, liked_users.get(username=like.username)) for like in likes]
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'delete_comment':
+            comment_id = request.POST.get('comment_id')
+            comment = get_object_or_404(Comment, id=comment_id)
+            comment.delete()
+        elif action == 'like_post':
+            user_id = request.user.id
+            liked = LikePost.objects.filter(post_id=post_id, user_id=user_id).exists()
+            if not liked:
+                like = LikePost.objects.create(post_id=post_id, user_id=user_id)
+                like.save()
+
+    return render(
+        request,
+        "post_details.html",
+        {"post": post, "comments": comments, "likes": likes_with_users}
+    )
+
+
+
