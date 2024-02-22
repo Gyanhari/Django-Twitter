@@ -19,9 +19,15 @@ from django.db.models import Avg
 def index(request):
     try:
         user_object = User.objects.get(username=request.user.username)
-        user_profile = Profile.objects.get(user=user_object)
+        try:
+            user_profile = Profile.objects.get(user=user_object)
+        except Profile.DoesNotExist:
+            user_profile = Profile.objects.create(user=user_object)
+
         user_email = user_object.email
-        user_profile_image_url = user_profile.profileimg.url  
+        user_profile_image_url = user_profile.profileimg.url 
+    except User.DoesNotExist:
+        pass
     except Profile.DoesNotExist:
         user_profile = Profile.objects.create(user=user_object)
         user_email = ""
@@ -78,7 +84,7 @@ def index(request):
         username_profile.append(users.id)
 
     for ids in username_profile:
-        profile_lists = Profile.objects.filter(id_user=ids)
+        profile_lists = Profile.objects.filter(user_id=ids)
         username_profile_list.append(profile_lists)
 
     suggestions_username_profile_list = list(chain(*username_profile_list))
@@ -141,7 +147,7 @@ def search(request):
             username_profile.append(users.id)
 
         for ids in username_profile:
-            profile_lists = Profile.objects.filter(id_user=ids)
+            profile_lists = Profile.objects.filter(user_id=ids)
             username_profile_list.append(profile_lists)
 
         username_profile_list = list(chain(*username_profile_list))
@@ -329,9 +335,8 @@ def signup(request):
                 auth.login(request, user_login)
 
                 user_model = User.objects.get(username=username)
-                new_profile = Profile.objects.create(
-                    user=user_model, id_user=user_model.id
-                )
+                new_profile = Profile.objects.create(user=user_model)
+
                 new_profile.save()
                 return redirect("settings")
         else:
@@ -399,10 +404,29 @@ def admin_approval(request):
 
 
 
+from django.contrib.auth.models import User
 
-from django.db.models import Avg
+@staff_member_required
+def delete_user(request):
+    if request.method == "POST":
+        user_id = request.POST.get("user_id")
+        
+        try:
+            user = User.objects.get(id=user_id)
+            user.delete()
+        except User.DoesNotExist:
+            pass
 
-from django.db.models import Avg
+    # Exclude the superuser from the list of users
+    users = User.objects.exclude(is_superuser=True)
+    
+    return render(
+        request,
+        "delete_user_admin.html",
+        {"users": users},
+    )
+
+
 
 @login_required(login_url="signin")
 def add_comment(request, post_id):
@@ -496,4 +520,3 @@ def delete_comment(request, comment_id):
     
     # Redirect back to the post detail page or any appropriate page
     return redirect(reverse("comment", kwargs={"post_id": comment.post.id}))
-

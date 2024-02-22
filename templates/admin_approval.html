@@ -1,8 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Approval Panel</title>
+{% extends 'adminBase.html' %}
+{% load static %}
+
+{% block title %}
+Home - SISS
+{% endblock %}
+
+    {% block style %}
     <style>
         table {
             border-collapse: collapse;
@@ -26,8 +29,10 @@
             cursor: pointer;
         }
     </style>
-</head>
-<body>
+    {% endblock style %}
+
+
+    {% block rightcontainer %}
     <h1>Pending Posts for Approval</h1>
     <div>
         <table>
@@ -118,4 +123,5 @@
         
     </div>
 </body>
-</html>
+{% endblock rightcontainer %}
+
