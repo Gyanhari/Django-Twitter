@@ -37,64 +37,90 @@ Profile - SISS
 					<form action="/follow" method="POST">
 						{% csrf_token %}
 						<div class="username_follow">
-						<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}} {{user_profile.user.last_name|title}}<small>    ({{user_profile.location}})</small></strong></p><br>
-						{% if user_object.username == user.username %}
-								{% else %}
-								<div class="setting-and-edit-profile">
-								<a data-ripple=""><button class="follow-and-unfollow" type="submit">{{button_text}}</button></a>
+							<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}}
+									{{user_profile.user.last_name|title}}<small>
+										{{user_profile.location}}</small></strong></p><br>
+							{% if user_object.username == user.username %}
+							{% else %}
+							<div class="setting-and-edit-profile">
+								<a data-ripple=""><button class="follow-and-unfollow"
+										type="submit">{{button_text}}</button></a>
 								<!-- <button type="submit">Chat</button> -->
-								</div>
-								{% endif %}
-					</div>
-					<br><div class="add-btn">
-		
-						<div class="number-of-follower">
-							{% if user_post_length == 0 %}
-							<span style="color: black; font-size: 20px;">No Post</span>
-							{% elif user_post_length == 1 %}
-							<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
-							{% else %}
-							<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
+							</div>
 							{% endif %}
-	
-							{% if user_followers == 0 or user_followers == 1 %}
-							<span style="color: black; font-size: 20px;">{{user_followers}} follower</span>
-							{% else %}
-							<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
-							{% endif %}
-	
-	
-							<span style="color: black; font-size: 20px;">{{user_following}} following</span>
 						</div>
-	
-						<input type="hidden" value="{{user.username}}" name="follower" />
-						<input type="hidden" value="{{user_object.username}}" name="user" />
-	
-	
-	
-					</div>
-					<p><small><b>Email: </b>{{ user_email }}</small></p>
-					<br><p><small>{{user_profile.bio}}</small></p><br>
-				
-	
-						
+						<br>
+						<!-- Popup container -->
+<div id="popup-container" style="display: none;">
+    <div id="popup-content"></div>
+</div>
+						<div class="add-btn">
+
+							<div class="number-of-follower">
+								{% if user_post_length == 0 %}
+								<span style="color: black; font-size: 20px;">No Post</span>
+								{% elif user_post_length == 1 %}
+								<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
+								{% else %}
+								<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
+								{% endif %}
+
+								{% if user_followers == 0 or user_followers == 1 %}
+								<span style="color: black; font-size: 20px;"><a href="{% url 'followers_popup' %}" id="followers-link">{{ user_followers }} follower</a>
+								</span>
+								{% else %}
+								<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
+								{% endif %}
+
+
+								<span style="color: black; font-size: 20px;"><a href="{% url 'following_popup' %}" id="followers-link">{{user_following}} following</a></span>
+							</div>
+
+							<input type="hidden" value="{{user.username}}" name="follower" />
+							<input type="hidden" value="{{user_object.username}}" name="user" />
+
+							<!-- <h2>Followers</h2>
+							<ul>
+							  {% for follower in followers %}
+								<li>{{ follower.username }}</li>
+							  {% endfor %}
+							</ul>
+							
+							<h2>Following</h2>
+							<ul>
+							  {% for user in following %}
+								<li>{{ user.username }}</li>
+							  {% endfor %}
+							</ul> -->
+							
+
+						</div>
+						<!-- <p><small><b>Email: </b>{{ user_email }}</small></p> -->
+						<p><small><b>Email: </b>{{ user_profile.user.email }}</small></p>
+
+						<br>
+						<p><small>{{user_profile.bio}}</small></p><br>
+
+
+
 					</form>
 				</div>
 			</div>
 		</div>
-		
-		
+
+		{% block follower_following %}{% endblock %}
+
 	</div>
 	<div></div>
 	{% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-                <p style="color:red" class="{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
-	{% for post in user_posts %}
-	{% if post.approved %}  <!-- Check if the post is approved -->
+	<div class="messages">
+		{% for message in messages %}
+		<p style="color:red" class="{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% for post in user_posts|dictsortreversed:"created_at" %}
+	{% if post.approved %} <!-- Check if the post is approved -->
 	<div class="tweets-main-block">
 		<div class="tweets-block-user-info">
 			<div class="tweets-block-profile-image">
@@ -111,14 +137,15 @@ Profile - SISS
 					<p style="color:#666"><small>{{post.created_at}}</small></p>
 				</div>
 				{% if user_object.username == request.user.username %}
-        <form id="delete-form-{{ post.id }}" action="{% url 'delete_post' post.id %}" method="post">
-            {% csrf_token %}
-            <button type="button" class="delete-post-button" style="border: none; margin-left: 15px;">
-                <img class="tweet-not-liked" src="{% static 'images/icons8-delete-24.png' %}" alt="" style="height: 20px; width: 20px; border: none;">
+				<form id="delete-form-{{ post.id }}" action="{% url 'delete_post' post.id %}" method="post">
+					{% csrf_token %}
+					<button type="button" class="delete-post-button" style="border: none; margin-left: 15px;">
+						<img class="tweet-not-liked" src="{% static 'images/icons8-delete-24.png' %}" alt=""
+							style="height: 20px; width: 20px; border: none;">
 
-            </button>
-        </form>
-    {% endif %}
+					</button>
+				</form>
+				{% endif %}
 
 			</div>
 			<!-- <div class="tweets-user-rating">
@@ -127,43 +154,50 @@ Profile - SISS
 		</div>
 		<div class="tweets-main-body">
 			{% if post.caption %}
-                    <!-- Assuming post.caption contains the text you want to display -->
-                    {% if post.caption %}
-                    {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
-                        <p class="tweets-main-body-desc" style="font-size: medium;">
-                            {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
-                            <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue; text-decoration: none;">See more</a>
-                        </p>
-                        <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
-                    {% else %}
-                        <p class="tweets-main-body-desc" style="font-size: medium;">{{ post.caption }}</p>
-                    {% endif %}
-                    {% endif %}
+			<!-- Assuming post.caption contains the text you want to display -->
+			{% if post.caption %}
+			{% if post.caption|wordcount > 20 %} {# Assuming you want to display only 20 words initially #}
+			<p class="tweets-main-body-desc" style="font-size: medium;">
+				{{ post.caption|truncatewords_html:10 }} {# Truncate the text to 20 words #}
+				<a href="{% url 'comment' post.id %}" class="see-more-link"
+					style="color: blue; text-decoration: none;">See more</a>
+			</p>
+			<!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+			{% else %}
+			<p class="tweets-main-body-desc" style="font-size: medium;">{{ post.caption }}</p>
+			{% endif %}
+			{% endif %}
 
-                    {% endif %}
-					{% if post.budget %}
-					<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
-				{% else %}
-		
-				
-				{% endif %}
+			{% endif %}
+			{% if post.budget %}
+			<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
+			{% else %}
+
+
+			{% endif %}
+			{% if post.attachment %}
+			<!-- Display link to download the file -->
+			<div>
+				<a href="{{ post.attachment.url }}" download>{{ post.attachment }}<br></a><br>
+			</div>
+			{% endif %}
 
 			{% if post.image %}
-			{% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
-				<img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-			{% elif post.image.url|slice:'-3:' == 'png' %}
-				<img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-			{% else %}
-				<!-- Display other file types -->
-				<a href="{{ post.image.url }}" target="_blank" style="text-decoration: none; color: blue;">{{ post.image.name }}</a>
+			<!-- Display image -->
+			<img src="{{ post.image.url }}" alt="Post Image" class="tweets-main-body-media">
 			{% endif %}
-		{% endif %}
 
-		
+
+
+
+
+
+
 
 
 			<div class="tweets-like-and-comments">
-				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2" style="text-decoration:  none;">
+				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2"
+					style="text-decoration:  none;">
 					<div class="tweets-like-and-number">
 						<img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
 						<p style="color:black; text-decoration: none;" class="tweet-liked-number">
@@ -176,10 +210,12 @@ Profile - SISS
 						{% endif %}</p>
 					</div>
 				</a>
-				<a href="{% url 'comment' post.id %}"  style="display: flex; flex-direction: row; gap: 10px; text-decoration: none; color: black;">
+				<a href="{% url 'comment' post.id %}"
+					style="display: flex; flex-direction: row; gap: 10px; text-decoration: none; color: black;">
 					<img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
 					<p> {{ post.comment_count }}</p>
-					<img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt="" style="height: 22px; width: 22px; margin-left: 50px;">
+					<img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt=""
+						style="height: 22px; width: 22px; margin-left: 50px;">
 					<p>{{ post.view_count }}</p>
 				</a>
 
@@ -193,20 +229,21 @@ Profile - SISS
 
 <!-- JavaScript for confirmation popup -->
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var deleteButtons = document.querySelectorAll('.delete-post-button');
+	document.addEventListener('DOMContentLoaded', function () {
+		var deleteButtons = document.querySelectorAll('.delete-post-button');
 
-        deleteButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                var postId = button.parentElement.getAttribute('id').replace('delete-form-', '');
-                var confirmation = confirm('Are you sure you want to delete this post?');
+		deleteButtons.forEach(function (button) {
+			button.addEventListener('click', function () {
+				var postId = button.parentElement.getAttribute('id').replace('delete-form-', '');
+				var confirmation = confirm('Are you sure you want to delete this post?');
 
-                if (confirmation) {
-                    document.getElementById('delete-form-' + postId).submit();
-                }
-            });
-        });
-    });
+				if (confirmation) {
+					document.getElementById('delete-form-' + postId).submit();
+				}
+			});
+		});
+	});
+
 </script>
 
 {% endblock %}

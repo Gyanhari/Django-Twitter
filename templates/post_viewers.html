@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Viewers</title>
+</head>
+<body>
+    <h1>Viewers of Post "{{ post.caption }}"</h1>
+    <ul>
+        {% for viewer in viewers %}
+            <li>{{ viewer.username }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

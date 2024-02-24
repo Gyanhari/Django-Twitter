@@ -9,11 +9,12 @@ from django.contrib.auth.models import User, auth
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost
+from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost, FollowingsCount
 from django.db.models import Q
 from django.urls import reverse
 from .forms import RatingForm
 from django.db.models import Avg
+from django.http import JsonResponse
 
 @login_required(login_url="signin")
 def index(request):
@@ -111,24 +112,33 @@ def index(request):
 def upload(request):
     if request.method == "POST":
         user = request.user.username
-        image = request.FILES.get("image_upload")
         caption = request.POST.get("caption")
         first_name = request.user.first_name
         last_name = request.user.last_name
         budget = request.POST.get('budget')
-
-        if image or caption:
+        images = request.FILES.getlist("image_upload")  # Get multiple image files
+        attachments = request.FILES.getlist("file_upload")  # Get multiple attachment files
+        
+        if caption:  # Check if caption is provided
             new_post = Post.objects.create(
                 user=user,
-                image=image,
                 caption=caption,
                 first_name=first_name,
                 last_name=last_name,
                 budget=budget,
             )
-            new_post.save()
-
+            # Save each image to the database
+            for image in images:
+                new_post.image = image
+                new_post.save()
+            # Save each attachment to the database
+            for attachment in attachments:
+                new_post.attachment = attachment
+                new_post.save()
+        
         return redirect("/")
+
+
 
 
 @login_required(login_url="signin")
@@ -269,7 +279,22 @@ def follow(request):
             new_follower.save()
             return redirect("/profile/" + user)
     else:
-        return redirect("/")
+        # Fetch the users who are following the logged-in user
+        user_followers = FollowersCount.objects.filter(user=request.user).values_list("follower__username", flat=True)
+
+        # Fetch the users whom the logged-in user is following
+        user_following = FollowersCount.objects.filter(follower=request.user.username).values_list("user__username", flat=True)
+
+        # Fetch the User objects for followers and following users
+        followers = User.objects.filter(username__in=user_followers)
+        following = User.objects.filter(username__in=user_following)
+
+        context = {
+            "followers": followers,
+            "following": following,
+        }
+        return render(request, "follow.html", context)
+
 
 
 @login_required(login_url="signin")
@@ -464,7 +489,7 @@ def add_comment(request, post_id):
     if request.method == "POST":
         user = request.user
         text = request.POST.get("comment_text")
-
+        
 
         
         if not text:  
@@ -561,6 +586,63 @@ def post_details(request, post_id):
         "post_details.html",
         {"post": post, "comments": comments, "likes": likes_with_users}
     )
+
+
+# def get_followers(request):
+#     user_followers = FollowersCount.objects.filter(user=request.user).values_list("follower__username", flat=True)
+#     followers = list(user_followers)
+#     return JsonResponse({"followers": followers})
+
+# def get_following(request):
+#     user_following = FollowersCount.objects.filter(follower=request.user.username).values_list("user__username", flat=True)
+#     following = list(user_following)
+#     return JsonResponse({"following": following})
+
+@login_required
+def followers_popup(request):
+    user_followers = FollowersCount.objects.filter(user=request.user.username)
+    context = {
+        'user_followers': user_followers,
+    }
+    return render(request, 'followers_popup.html', context)
+
+@login_required
+def following_popup(request):
+    if request.method == "POST":
+        follower = request.POST["follower"]
+        user = request.POST["user"]
+
+        if FollowersCount.objects.filter(follower=follower, user=user).first():
+            delete_follower = FollowersCount.objects.get(follower=follower, user=user)
+            delete_follower.delete()
+            return redirect("/profile/" + user)
+        else:
+            new_follower = FollowersCount.objects.create(follower=follower, user=user)
+            new_follower.save()
+            return redirect("/profile/" + user)
+    else:
+        # Fetch the users who are following the logged-in user
+        user_followers = FollowersCount.objects.filter(user=request.user).values_list("follower", flat=True)
+
+        # Fetch the users whom the logged-in user is following
+        user_following = FollowersCount.objects.filter(follower=request.user.username).values_list("user", flat=True)
+
+        # Fetch the User objects for followers and following users
+        followers = User.objects.filter(username__in=user_followers)
+        following = User.objects.filter(username__in=user_following)
+
+        context = {
+            "followers": followers,
+            "following": following,
+        }
+        return render(request, "following_popup.html", context)
+
+
+
+def post_viewers(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    viewers = post.viewers.all()
+    return render(request, 'post_viewers.html', {'post': post, 'viewers': viewers})
 
 
 

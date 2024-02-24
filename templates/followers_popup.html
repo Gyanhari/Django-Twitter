@@ -1,0 +1,17 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}
+Profile - SISS
+{% endblock %}
+
+    {% block middle-block %}
+    <h1>User Followers</h1>
+    <ul>
+        {% for follower in user_followers %}
+            <li>{{ follower.follower }}</li>
+        {% endfor %}
+    </ul>
+    {% endblock %}
+
+

@@ -1,0 +1,10 @@
+<!-- followers_popup.html -->
+{% extends 'home.html' %}
+{% block middle-block %}
+<h2>Following</h2>
+<ul>
+  {% for user in following %}
+    <li>{{ user.username }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}

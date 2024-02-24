@@ -257,15 +257,19 @@ a{
                                 </div>
                             </a>
                             <div class="comment_align">
-                                <a href="{% url 'comment' post.id %}"  style="display: flex; flex-direction: row; gap: 10px;">
+                                <a href="{% url 'post_viewers' post.id %}" style="display: flex; flex-direction: row; gap: 10px;">
                                     <img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
-                                    <p> {{ comment_count }}</p>
+                                    <p>{{ comment_count }}</p>
                                     <img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt="" style="height: 22px; width: 22px; margin-left: 50px;">
                                     <p>{{ post.view_count }}</p>
                                 </a>
                             </div>
-            
-            
+                            <!-- <form method="post">
+                                {% csrf_token %}
+                                {{ rating_form }}
+                                <button type="submit">Submit Rating</button>
+                            </form> -->
+                            
                         </div>
                         
                         <div class="comments-section mt-4">

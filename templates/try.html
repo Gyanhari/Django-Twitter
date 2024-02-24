@@ -6,7 +6,32 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>{caption}</h1>
-    <h1>{{image }}</h1>
+    <div id="mypopover" popover>
+        <div class="create-post-overlay">
+            <div class="create-post-header">Create Post</div>
+            <div class="create-post-body">
+                <form action="/upload" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="post-user-caption">
+                        <label for="user-caption">Caption<sup style="color: red;user-select: none"></sup>: </label>
+                        <textarea id="user-caption" name="caption" class="user-caption-content"
+                            placeholder="Your Caption goes here"></textarea>
+                    </div>
+                    <div class="post-budget">
+                        <label for="user-budget">Budget:</label>
+                        <input id="user-budget" name="budget" type="text" min="0">
+                    </div>
+                    <div class="user-post-media">
+                        <label for="user-media">Upload Pictures</label>
+                        <input type="file" id="user-media" name="image_upload"> <!-- Image upload field -->
+                        <label for="user-file">Upload files</label>
+                        <input type="file" id="user-file" name="file_upload">
+                    </div>
+                    <br>
+                    <button class="post-submit-button" type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

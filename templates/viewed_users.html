@@ -1,0 +1,15 @@
+{% extends 'adminBase.html' %}
+{% load static %}
+
+{% block title %}
+Viewed Users
+{% endblock %}
+
+{% block rightcontainer %}
+<h1>Users who viewed the post</h1>
+<ul>
+    {% for viewed_user in viewed_users %}
+    <li>{{ viewed_user.user.username }} - {{ viewed_user.viewed_at }}</li>
+    {% endfor %}
+</ul>
+{% endblock rightcontainer %}

@@ -21,4 +21,9 @@ urlpatterns = [
     path('post_details/<uuid:post_id>/', views.post_details, name='post_details'),
     path('user_posts/<int:user_id>/', views.user_posts, name='user_posts'),
     # path('viewed_users/<uuid:post_id>/', views.viewed_users, name='viewed_users'),
+    # path('verify-otp/<int:user_id>/', verify_otp, name='verify_otp'),  
+    path('followers_popup/', views.followers_popup, name='followers_popup'),
+    path('following_popup/', views.following_popup, name='following_popup'), 
+    path('post/<uuid:post_id>/viewers/', views.post_viewers, name='post_viewers'),
+    # path('rate/<int:post_id>/<int:rating>/', views.rate, name='rate'),
 ]
