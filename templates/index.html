@@ -40,8 +40,8 @@ Home - SISS
                             <p style="color:#666"><small>{{post.created_at}}</small></p>
                         </div>
                         <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
-                            <p>{{ post.average_rating|floatformat:"1" }}</p>
-                            <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="23px" width="23px">
+                            <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
+                            <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="20px" width="20px">
                         </div>
                     </div>
                     <!-- <div class="tweets-user-rating">
@@ -67,16 +67,20 @@ Home - SISS
                     {% if post.budget %}
 					<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
 				    {% endif %}
-                    {% if post.image %}
-                    {% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
-                        <img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-                    {% elif post.image.url|slice:'-3:' == 'png' %}
-                        <img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-                    {% else %}
-                        <!-- Display other file types -->
-                        <a href="{{ post.image.url }}" target="_blank">{{ post.image.name }}</a>
-                    {% endif %}
-                {% endif %}
+                    
+                    {% for image in post.post_images.all %}
+    {% if forloop.counter0 < 2 %}
+        <img src="{{ image.image.url }}" class="img-fluid" alt="Post Image" height="100px" width="100px">
+    {% elif forloop.counter0 == 2 %}
+        <p><a href="{% url 'comment' post.id %}">See more</a></p>
+    {% endif %}
+{% endfor %}
+
+                    <!-- Display attachments -->
+                    {% for attachment in post.post_attachments.all %}
+                    <a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank">Download Attachment</a>
+                    {% endfor %}
+
                     <div class="tweets-like-and-comments" >
                         <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
                             <div class="tweets-like-and-number">
@@ -125,7 +129,7 @@ Home - SISS
 <div class="right-posts">
     <div class="right-posts-heading">Posts of the month</div>
 
-    {% for post in sorted_posts|slice:":5" %}
+    {% for post in posts|slice:":5" %}
     <a href="{% url 'comment' post.id %}">
         <div class="right-top-post">
             <div class="top-post-main-container">
@@ -133,8 +137,8 @@ Home - SISS
                     <p><strong>{{post.user|title}}</strong></p>
                     <p><h3>&#x2022;</h3></p>
                     <p>{{post.created_at}}</p>
-                    <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
-                        <p>{{ post.average_rating|floatformat:"1" }}</p>
+                     <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                        <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
                         <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
                     </div> 
                 </div>

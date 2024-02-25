@@ -9,7 +9,7 @@ from django.contrib.auth.models import User, auth
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost, FollowingsCount, Rating
+from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost, FollowingsCount, Rating, PostImage, PostAttachment
 from django.db.models import Q
 from django.urls import reverse
 from .forms import RatingForm
@@ -61,6 +61,12 @@ def index(request):
 
         post_user_profile = Profile.objects.get(user__username=post.user)
         post.user_profile_image_url = post_user_profile.profileimg.url
+
+        # Retrieve images and attachments associated with the post
+        post_images = PostImage.objects.filter(post=post)
+        post_attachments = PostAttachment.objects.filter(post=post)
+        post.post_images = post_images
+        post.post_attachments = post_attachments
 
     # user suggestion starts
     all_users = User.objects.all()
@@ -164,14 +170,13 @@ def upload(request):
             )
             # Save each image to the database
             for image in images:
-                new_post.image = image
-                new_post.save()
+                PostImage.objects.create(post=new_post, image=image)
             # Save each attachment to the database
             for attachment in attachments:
-                new_post.attachment = attachment
-                new_post.save()
+                PostAttachment.objects.create(post=new_post, attachment=attachment)
         
         return redirect("/")
+
 
 
 
@@ -586,10 +591,14 @@ def add_comment(request, post_id):
     else:
         rating_form = RatingForm()
 
+    # Fetch images and attachments associated with the post
+    post_images = PostImage.objects.filter(post=post)
+    post_attachments = PostAttachment.objects.filter(post=post)
+    
     # Calculate average rating for the post
     average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
     
-    # Pass the rating form instance and average rating to the template context
+    # Pass the rating form instance, average rating, images, and attachments to the template context
     return render(request, "comment.html", {
         "post": post, 
         "comments": comments, 
@@ -598,8 +607,11 @@ def add_comment(request, post_id):
         "post_user_profile_picture_url": post_user_profile_picture_url,
         "budget": post.budget,
         "rating_form": rating_form,
-        "average_rating": average_rating,  # Pass average rating to the template context
+        "average_rating": average_rating,
+        "post_images": post_images,
+        "post_attachments": post_attachments,
     })
+
 
 
 

@@ -224,16 +224,16 @@ a{
 
         
 
-        {% if post.image %}
-			{% if post.image.url|slice:'-3:' == 'jpg' or post.image.url|slice:'-4:' == 'jpeg' %}
-				<img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-			{% elif post.image.url|slice:'-3:' == 'png' %}
-				<img src="{{ post.image.url }}" alt="" class="tweets-main-body-media">
-			{% else %}
-				<!-- Display other file types -->
-				<a href="{{ post.image.url }}" target="_blank">{{ post.image.name }}</a>
-			{% endif %}
-		{% endif %}
+        {% for image in post_images %}
+        <img src="{{ image.image.url }}" alt="Image" width="200">
+    {% endfor %}
+
+    <h2>Attachments:</h2>
+    <ul>
+        {% for attachment in post_attachments %}
+            <li><a href="{{ attachment.attachment.url }}" target="_blank">{{ attachment.attachment.name }}</a></li>
+        {% endfor %}
+    </ul>
 
         <div class="tweets-like-and-comments">
            
