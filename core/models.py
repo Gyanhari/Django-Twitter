@@ -36,10 +36,24 @@ class Post(models.Model):
     rating = models.FloatField(default=0)
     attachment = models.FileField(upload_to="post_attachments", null=True, blank=True)
     viewers = models.ManyToManyField(User, related_name='viewed_posts')
+    
 
 
     def __str__(self):
         return self.user
+    
+    def average_rating(self):
+        return Rating.objects.filter(post=self).aggregate(models.Avg('rating'))['rating__avg'] or 0
+    
+class Rating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_ratings')  # Specify a custom related_name
+    rating = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.post.header}: {self.rating}"
+
+
     
 
     

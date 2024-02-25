@@ -2,7 +2,7 @@ from django import forms
 # from .models import Rating
 
 class RatingForm(forms.Form):
-    rating = forms.FloatField(label='Rating', min_value=1, max_value=5)
+    rating = forms.IntegerField(label='Rating', min_value=1, max_value=5)
 
 from django import forms
 from .models import Post

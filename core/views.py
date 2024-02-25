@@ -9,12 +9,14 @@ from django.contrib.auth.models import User, auth
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.admin.views.decorators import staff_member_required
-from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost, FollowingsCount
+from .models import Profile, Post, LikePost, FollowersCount, Comment, ViewedPost, FollowingsCount, Rating
 from django.db.models import Q
 from django.urls import reverse
 from .forms import RatingForm
 from django.db.models import Avg
 from django.http import JsonResponse
+
+from django.shortcuts import get_object_or_404
 
 @login_required(login_url="signin")
 def index(request):
@@ -46,10 +48,9 @@ def index(request):
         )
         feed.extend(feed_lists)
 
-
     feed_list = list(feed)
 
-   # Fetching budget for each post
+    # Fetching budget for each post
     budgets = [post.budget for post in feed_list]
 
     feed_list = [post for post in feed_list if post.user != request.user]
@@ -90,18 +91,52 @@ def index(request):
 
     suggestions_username_profile_list = list(chain(*username_profile_list))
 
+    if request.method == "POST":
+        # Handling comment submission
+        user = request.user
+        text = request.POST.get("comment_text")
+        
+        # Determine the post for which the rating is being submitted
+        post_id = request.POST.get("post_id")  # Assuming you have a hidden input field in your form containing the post ID
+        post = get_object_or_404(Post, id=post_id)
+
+        # Handling rating submission
+        rating_form = RatingForm(request.POST)
+        if rating_form.is_valid():
+            rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
+            Rating.objects.update_or_create(post=post, user=user, defaults={'rating': rating})  # Update or create the Rating object
+            messages.success(request, "Rating submitted successfully.")
+        else:
+            messages.error(request, "Invalid rating form. Please try again.")
+
+    else:
+        rating_form = RatingForm()
+
+    # Calculate average rating for each post
+    average_ratings = {}
+    for post in feed_list:
+        average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
+        average_ratings[post.id] = average_rating
+
+    # Sort the posts based on their average ratings (highest first)
+    sorted_posts = sorted(feed_list, key=lambda post: average_ratings.get(post.id, 0), reverse=True)
+
     return render(
         request,
         "index.html",
         {
             "user_profile": user_profile,
             "user_email": user_email,
-            "user_profile_image_url": user_profile_image_url,  # Pass profile image URL of logged-in user
+            "user_profile_image_url": user_profile_image_url,
             "posts": feed_list,
             "suggestions_username_profile_list": suggestions_username_profile_list[:4],
             "budgets": budgets,
+            "rating_form": rating_form,
+            "average_ratings": average_ratings,  # Pass average ratings to the template context
+            "sorted_posts": sorted_posts,
         },
     )
+
 
 
 
@@ -242,6 +277,34 @@ def profile(request, pk):
     else:
         button_text = None
 
+    if request.method == "POST":
+        # Handling comment submission
+        user = request.user
+        text = request.POST.get("comment_text")
+        
+        # Handling rating submission
+        rating_form = RatingForm(request.POST)
+        if rating_form.is_valid():
+            # Get the post ID from the form data
+            post_id = rating_form.cleaned_data['post_id']
+            # Retrieve the corresponding post
+            post = Post.objects.get(pk=post_id)
+            # Get the rating value from the form data
+            rating = rating_form.cleaned_data['rating']
+            # Create and save the Rating object
+            Rating.objects.create(post=post, user=user, rating=rating)
+            messages.success(request, "Rating submitted successfully.")
+        else:
+            messages.error(request, "Invalid rating form. Please try again.")
+    else:
+        rating_form = RatingForm()
+
+    # Calculate average rating for each post
+    average_ratings = {}
+    for post in user_posts_to_display:
+        average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
+        average_ratings[post.id] = average_rating
+
     context = {
         "user_object": user_object,
         "user_profile": user_profile,
@@ -256,8 +319,12 @@ def profile(request, pk):
         "total_view_count": total_view_count,  # Include total view count in the context
         "budgets": budgets,
         "user_email" : user_email,
+        "rating_form": rating_form,
+        "average_ratings": average_ratings,  # Pass average ratings to the template context
     }
     return render(request, "profile.html", context)
+
+
 
 
 
@@ -460,6 +527,12 @@ def user_posts(request, user_id):
     return render(request, "user_posts.html", {"user": user, "user_profile": user_profile, "user_posts": user_posts})
 
 
+from django.db.models import Avg
+
+from django.shortcuts import redirect
+
+from django.shortcuts import redirect
+
 @login_required(login_url="signin")
 def add_comment(request, post_id):
     post = get_object_or_404(Post, id=post_id)
@@ -470,14 +543,14 @@ def add_comment(request, post_id):
     session_key = request.session.session_key
     viewed_posts = request.session.get('viewed_posts', [])
 
-     # Check if the user has already viewed this post recently
+    # Check if the user has already viewed this post recently
     user = request.user
     if not ViewedPost.objects.filter(post=post, user=user, viewed_at__gte=timezone.now() - timezone.timedelta(days=1)).exists():
         # Increment the view count of the post
         post.view_count += 1
         post.save()
 
-        # Record the view in the database
+        # Record the view in the database   
         viewed_post = ViewedPost.objects.create(post=post, user=user)
         viewed_post.save()
 
@@ -485,12 +558,10 @@ def add_comment(request, post_id):
     
     post_user_profile_picture_url = None  
 
-    
     if request.method == "POST":
+        # Handling comment submission
         user = request.user
         text = request.POST.get("comment_text")
-        
-
         
         if not text:  
             messages.error(request, "Please fill in the comment field.")
@@ -502,20 +573,39 @@ def add_comment(request, post_id):
             
             comments = Comment.objects.filter(post=post)
             comment_count = comments.count()
-            
+
+        # Handling rating submission
+        rating_form = RatingForm(request.POST)
+        if rating_form.is_valid():
+            rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
+            Rating.objects.create(post=post, user=user, rating=rating)  # Create and save the Rating object
+            messages.success(request, "Rating submitted successfully.")
+        else:
+            messages.error(request, "Invalid rating form. Please try again.")
+
     else:
-        # Create a new instance of the rating form
         rating_form = RatingForm()
-            
+
+    # Calculate average rating for the post
+    average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
+    
+    # Pass the rating form instance and average rating to the template context
     return render(request, "comment.html", {
         "post": post, 
         "comments": comments, 
         "comment_count": comment_count,
         "logged_in_user_profile_picture_url": logged_in_user_profile_picture_url,
         "post_user_profile_picture_url": post_user_profile_picture_url,
-        "budget": post.budget, 
-
+        "budget": post.budget,
+        "rating_form": rating_form,
+        "average_rating": average_rating,  # Pass average rating to the template context
     })
+
+
+
+
+
+
 
 
 
@@ -561,7 +651,7 @@ def post_details(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(post=post)
     likes = LikePost.objects.filter(post_id=post_id)
-
+    
     # Fetch user information for each like
     liked_users = User.objects.filter(username__in=[like.username for like in likes])
 

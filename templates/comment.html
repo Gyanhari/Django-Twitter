@@ -205,6 +205,10 @@ a{
             <div style="display: flex; flex-direction: column;">
                 <p style="color:#666"><small>{{post.created_at}}</small></p>
             </div>
+            <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                <p>{{ post.average_rating|floatformat:"1" }}</p>
+                <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="23px" width="23px">
+            </div>
         </div>
         <!-- <div class="tweets-user-rating">
             asdasdsa
@@ -269,6 +273,16 @@ a{
                                 {{ rating_form }}
                                 <button type="submit">Submit Rating</button>
                             </form> -->
+                            {% for like, user_info in likes %}
+                            <li>{{ user_info.first_name }} {{ user_info.last_name }} ({{ user_info.username }}) liked the post</li>
+                            {% endfor %}
+
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                {{ rating_form }}
+                                <button type="submit">Submit Rating</button>
+                            </form>
+                            
                             
                         </div>
                         

@@ -51,7 +51,7 @@ Home - SISS
             <tr>
                 <td>{{ forloop.counter }}</td> <!-- Display serial number -->
                 <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a>  </td> <!-- Display user -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.caption }}</a>   </td> <!-- Display caption -->
+                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 40 words #}</a>   </td> <!-- Display caption -->
                 <!-- Check if post has an image -->
                 <td>
                     {% if post.image %}
@@ -94,7 +94,7 @@ Home - SISS
             <tr>
                 <td>{{ forloop.counter }}</td> <!-- Display serial number -->
                 <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a></td> <!-- Display user -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.caption }}</a></td> <!-- Display caption -->
+                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 20 words #}</a></td> <!-- Display caption -->
                 <!-- Check if post has an image -->
                 <td>
                     {% if post.image %}

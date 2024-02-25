@@ -206,6 +206,12 @@ a{
                 <div style="display: flex; flex-direction: column;">
                     <p style="color:#666"><small>{{post.created_at}}</small></p>
                 </div>
+                {% if post.id in average_ratings %}
+          <!-- Display average rating -->
+          <p>Average Rating: {{ average_ratings|get_item:post.id|floatformat:"1" }}</p>
+        {% else %}
+          <p>No ratings yet.</p>
+        {% endif %}
             </div>
             <!-- <div class="tweets-user-rating">
                 asdasdsa
@@ -268,10 +274,6 @@ a{
                                 
                                 
                             </div>
-                            {% for like, user_info in likes %}
-                            <li>{{ user_info.first_name }} {{ user_info.last_name }} ({{ user_info.username }}) liked the post</li>
-                            {% endfor %}
-
                             
                             
                             <div class="comments-section mt-4">
