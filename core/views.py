@@ -160,22 +160,25 @@ def upload(request):
         images = request.FILES.getlist("image_upload")  # Get multiple image files
         attachments = request.FILES.getlist("file_upload")  # Get multiple attachment files
         
-        if caption:  # Check if caption is provided
-            new_post = Post.objects.create(
-                user=user,
-                caption=caption,
-                first_name=first_name,
-                last_name=last_name,
-                budget=budget,
-            )
-            # Save each image to the database
-            for image in images:
-                PostImage.objects.create(post=new_post, image=image)
-            # Save each attachment to the database
-            for attachment in attachments:
-                PostAttachment.objects.create(post=new_post, attachment=attachment)
+        # Create a post even if caption is not provided
+        new_post = Post.objects.create(
+            user=user,
+            caption=caption,
+            first_name=first_name,
+            last_name=last_name,
+            budget=budget,
+        )
+        # Save each image to the database
+        for image in images:
+            PostImage.objects.create(post=new_post, image=image)
+        # Save each attachment to the database
+        for attachment in attachments:
+            PostAttachment.objects.create(post=new_post, attachment=attachment)
         
         return redirect("/")
+
+    return render(request, "upload_form.html")  # Add your upload form template here
+
 
 
 
@@ -490,18 +493,28 @@ def admin_approval(request):
         except ObjectDoesNotExist:
             pass
 
+    # Fetch all pending posts
+    pending_posts = Post.objects.filter(approved=False)
 
-    pending_posts = Post.objects.all()
+    # Fetch all approved posts
+    approved_posts = Post.objects.filter(approved=True)
 
+    # Fetch images and attachments associated with each pending post
+    for post in pending_posts:
+        post.post_images = PostImage.objects.filter(post=post)
+        post.post_attachments = PostAttachment.objects.filter(post=post)
 
-    approved_posts = pending_posts.filter(approved=True)
-    pending_posts = pending_posts.filter(approved=False)
+    # Fetch images and attachments associated with each approved post
+    for post in approved_posts:
+        post.post_images = PostImage.objects.filter(post=post)
+        post.post_attachments = PostAttachment.objects.filter(post=post)
 
     return render(
         request,
         "admin_approval.html",
         {"pending_posts": pending_posts, "approved_posts": approved_posts},
     )
+
 
 @staff_member_required
 def approved_post(request):
@@ -521,18 +534,20 @@ def approved_post(request):
         except ObjectDoesNotExist:
             pass
 
+    # Fetch all approved posts
+    approved_posts = Post.objects.filter(approved=True)
 
-    pending_posts = Post.objects.all()
-
-
-    approved_posts = pending_posts.filter(approved=True)
- 
+    # Fetch images and attachments associated with each post
+    for post in approved_posts:
+        post.post_images = PostImage.objects.filter(post=post)
+        post.post_attachments = PostAttachment.objects.filter(post=post)
 
     return render(
         request,
         "approved_post.html",
-        { "approved_posts": approved_posts},
+        { "approved_posts": approved_posts }
     )
+
 
 
 

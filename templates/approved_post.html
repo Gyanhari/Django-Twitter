@@ -65,7 +65,8 @@
                 <th>SN</th>
                 <th>User</th>
                 <th>Caption</th>
-                <th>Post</th>
+                <th>Images</th>
+                <th>Attachment</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -77,13 +78,14 @@
                 <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 20 words #}</a></td> <!-- Display caption -->
                 <!-- Check if post has an image -->
                 <td>
-                    {% if post.image %}
-                    <a href="{{ post.image.url }}" target="_blank">
-                        <img src="{{ post.image.url }}" alt="Post Image">
-                    </a>
-                    {% else %}
-                    No Image
-                    {% endif %}
+                    {% for image in post.post_images %}
+                        <img src="{{ image.image.url }}" alt="Post Image" style="max-width: 100px; max-height: 100px;">
+                    {% endfor %}
+                </td>
+                <td>
+                    {% for attachment in post.post_attachments %}
+                        <a href="{{ attachment.attachment.url }}">{{ attachment.attachment.name }}</a><br>
+                    {% endfor %}
                 </td>
                 <!-- Display delete button for approved posts -->
                 <td>
