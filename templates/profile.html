@@ -148,7 +148,7 @@ Profile - SISS
 				<form id="delete-form-{{ post.id }}" action="{% url 'delete_post' post.id %}" method="post">
 					{% csrf_token %}
 					<button type="button" class="delete-post-button" style="border: none; margin-left: 15px;">
-						<img class="tweet-not-liked" src="{% static 'images/icons8-delete-24.png' %}" alt=""
+						<img class="tweet-not-liked" src="{% static 'images/icons8-delete.svg' %}" alt=""
 							style="height: 20px; width: 20px; border: none;">
 
 					</button>
@@ -264,6 +264,7 @@ Profile - SISS
 {% endblock middle-block %}
 
 
+
 {% block right_block %}
 <form action="/search" method="POST">
     {% csrf_token %}
@@ -315,5 +316,6 @@ Profile - SISS
     <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
 </div>
 {% endblock %}
+
 
 

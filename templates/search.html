@@ -43,6 +43,7 @@ Search
 
 {% block middle-block %}
     <!-- <h4 class="search-result-item-heading"><b>Result for : {{ users.user|title }}</b></h4> -->
+    <h1>Search</h1>
     {% for users in username_profile_list %}
             <section class="search-result-item">
                 <a class="image-link" href="/profile/{{ users.user }}" style="text-decoration: none;"><img class="image" src="{{ users.profileimg.url }}"></a>
