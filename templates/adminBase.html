@@ -11,10 +11,12 @@
     <style>
         .left-container{
             background-color: #3b3f52;
-            width: 200px;
+            width: 12%;
+            text-decoration: none;
         }
         .navbar-links{
             color: white;
+            text-decoration: none;
         }
         .rightcontainer{
             margin-left: 200px;
@@ -39,9 +41,9 @@
                     <ul class="nav-ul">
                         <li class="nav-ul-li">
                             {% block nav-home %}
-                            <a href="{% url 'delete_user' %}">
+                            <a href="{% url 'delete_user' %}" style="text-decoration: none; color: white;">
 
-                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">Users
+                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt=""><b>Users</b>
                                 </div>
                             </a>
 
@@ -53,7 +55,10 @@
                                 <div><img class="nav-component-img" src="{% static 'images/message.svg' %}" alt="">
                                 </div>
                             </a>
-                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'admin_approval' %}"><b>Posts</b></a></div>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'admin_approval' %}"><b>Pending Posts</b></a></div>
+                        </li>
+                        <li>
+                            <a href="{% url 'approved_post' %}" style="text-decoration: none; color: white;"><b>Approved Post</b></a>
                         </li>
                     </ul>
                 </nav>

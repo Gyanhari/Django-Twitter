@@ -68,18 +68,27 @@ Home - SISS
 					<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
 				    {% endif %}
                     
-                    {% for image in post.post_images.all %}
-    {% if forloop.counter0 < 2 %}
-        <img src="{{ image.image.url }}" class="img-fluid" alt="Post Image" height="100px" width="100px">
-    {% elif forloop.counter0 == 2 %}
-        <p><a href="{% url 'comment' post.id %}">See more</a></p>
-    {% endif %}
-{% endfor %}
-
+                    <div class="image_file" style="display: flex; flex-direction: column;">
                     <!-- Display attachments -->
                     {% for attachment in post.post_attachments.all %}
                     <a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank">Download Attachment</a>
                     {% endfor %}
+                    
+                    <div class="mul_image" style="display: flex; flex-direction: row;">
+                    {% for image in post.post_images.all %}
+                    <div class="mulimage" style="display: flex; flex-direction: column;">
+                    {% if forloop.counter0 < 2 %}
+                        <img src="{{ image.image.url }}" class="img-fluid" alt="Post Image"  width="400px" style="border-radius: 10px; margin-left: 10px;">
+                    {% elif forloop.counter0 == 2 %}
+                        <p><a href="{% url 'comment' post.id %}" style="margin-left: 100px; margin-top: 100px;">See more</a></p>
+                    {% endif %}
+                    
+                </div>
+                {% endfor %}
+            </div>
+                </div>
+
+                    
 
                     <div class="tweets-like-and-comments" >
                         <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">

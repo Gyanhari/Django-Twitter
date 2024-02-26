@@ -190,25 +190,30 @@ a{
         <div class="tweets-block-user-info">
             <div class="tweets-block-profile-image">
                 {% if request.user == post.user %}
-                    <img class="tweets-user-profile-picture" src="{{ logged_in_user_profile_picture_url }}" alt="">
+                    <img class="tweets-user-profile-picture" src="{{ user_profile.profileimg.url }}" alt="">
                 {% else %}
                     <div class="tweets-block-profile-image">
-                        <img class="tweets-user-profile-picture" src="{{ logged_in_user_profile_picture_url }}" alt="">
+                        <img class="tweets-user-profile-picture" src="{{ user_profile.profileimg.url }}" alt="">
                     </div>
                 {% endif %}
 
             </div>
             <div class="tweets-block-user-info">
-                <p><strong><a href="/profile/{{post.user}}"><small>{{post.user|title}}</small></a></strong></p>
+                <p><strong><small>{{post.user|title}}</small></strong></p>
                 <p style="color:#666"><small>@{{post.first_name|title}} {{post.last_name|title}}</small></p></a>
                 <h3>&#x2022;</h3>
                 </p>
                 <div style="display: flex; flex-direction: column;">
                     <p style="color:#666"><small>{{post.created_at}}</small></p>
                 </div>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_post">
+                    <button type="submit">Delete Post</button>
+                  </form>
                 {% if post.id in average_ratings %}
           <!-- Display average rating -->
-          <p>Average Rating: {{ average_ratings|get_item:post.id|floatformat:"1" }}</p>
+          <p>Average Rating: {{ average_ratings|floatformat:"1" }}</p>
         {% else %}
           <p>No ratings yet.</p>
         {% endif %}

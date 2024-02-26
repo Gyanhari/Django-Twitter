@@ -65,15 +65,19 @@ Profile - SISS
 								<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
 								{% endif %}
 
+								{% if request.user.username == user_object.username %}
 								{% if user_followers == 0 or user_followers == 1 %}
-								<span style="color: black; font-size: 20px;"><a href="{% url 'followers_popup' %}" id="followers-link">{{ user_followers }} follower</a>
-								</span>
+									<!-- <span style="color: black; font-size: 20px;">{{ user_followers }} follower</span> -->
 								{% else %}
-								<span style="color: black; font-size: 20px;">{{user_followers}} followers</span>
+									<!-- <span style="color: black; font-size: 20px;">{{ user_followers }} followers</span> -->
 								{% endif %}
+								<span style="color: black; font-size: 20px;"><a href="{% url 'followers_popup' %}" id="followers-link">{{ user_followers }} followers</a></span>
+								<span style="color: black; font-size: 20px;"><a href="{% url 'following_popup' %}" id="following-link">{{ user_following }} following</a></span>
+							{% else %}
+								<span style="color: black; font-size: 20px;">{{ user_followers }} followers</span>
+								<span style="color: black; font-size: 20px;">{{ user_following }} following</span>
+							{% endif %}
 
-
-								<span style="color: black; font-size: 20px;"><a href="{% url 'following_popup' %}" id="followers-link">{{user_following}} following</a></span>
 							</div>
 
 							<input type="hidden" value="{{user.username}}" name="follower" />
@@ -179,17 +183,23 @@ Profile - SISS
 
 
 			{% endif %}
-			{% if post.attachment %}
-			<!-- Display link to download the file -->
-			<div>
-				<a href="{{ post.attachment.url }}" download>{{ post.attachment }}<br></a><br>
+			<div class="image_file" style="display: flex; flex-direction: column; text-decoration: none;">
+				<!-- Display attachments -->
+				{% for attachment in post.post_attachments.all %}
+				<a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank" style="text-decoration: none; color: black;">Download Attachment</a>
+				{% endfor %}
+			<div class="mul_image" style="display: flex; flex-direction: row;">
+				{% for image in post.post_images.all %}
+				<div class="mulimage" style="display: flex; flex-direction: column;">
+				{% if forloop.counter0 < 2 %}
+					<img src="{{ image.image.url }}" class="img-fluid" alt="Post Image"  width="400px" style="border-radius: 10px; margin-left: 10px;">
+				{% elif forloop.counter0 == 2 %}
+					<p><a href="{% url 'comment' post.id %}" style="margin-left: 100px; margin-top: 100px; text-decoration: none; color: black;">See more</a></p>
+				{% endif %}
+				
 			</div>
-			{% endif %}
-
-			{% if post.image %}
-			<!-- Display image -->
-			<img src="{{ post.image.url }}" alt="Post Image" class="tweets-main-body-media">
-			{% endif %}
+			{% endfor %}
+		</div>
 
 
 
@@ -231,6 +241,7 @@ Profile - SISS
 	{% endfor %}
 </div>
 
+
 <!-- JavaScript for confirmation popup -->
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
@@ -250,4 +261,59 @@ Profile - SISS
 
 </script>
 
+{% endblock middle-block %}
+
+
+{% block right_block %}
+<form action="/search" method="POST">
+    {% csrf_token %}
+    <div class="right-search-bar">
+        <label for="search-box"></label>
+        <input id="search-box" type="text" name="username" placeholder="Search for user">&nbsp;
+        &nbsp;
+        <div class="right-search-button"><img class="search-bar-image"
+                src="{% static 'images/search.svg' %}" alt=""></div>
+        <!-- <button class="right-search-bar-search-text">Search</button> -->
+    </div>
+</form>
+<div class="right-posts">
+    <div class="right-posts-heading">Posts of the month</div>
+
+    {% for post in posts|slice:":5" %}
+    <a href="{% url 'comment' post.id %}">
+        <div class="right-top-post">
+            <div class="top-post-main-container">
+                <div class="right-top-post-user-info">
+                    <p><strong>{{post.user|title}}</strong></p>
+                    <p><h3>&#x2022;</h3></p>
+                    <p>{{post.created_at}}</p>
+                     <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                        <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
+                        <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
+                    </div> 
+                </div>
+                {% if post.caption %}
+                 {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                    <p class="tweets-main-body-desc">
+                     {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                     <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                     
+                    </p>
+            <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+            {% else %}
+                    <p class="tweets-main-body-desc">{{ post.caption }}</p>
+            {% endif %}
+            {% endif %}
+            </div>
+            {% if post.image %}
+            <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+            {% endif %}
+        </div>
+    </a>
+    {% endfor %}
+
+    <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
+</div>
 {% endblock %}
+
+

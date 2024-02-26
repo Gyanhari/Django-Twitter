@@ -14,6 +14,7 @@ urlpatterns = [
     path('signin', views.signin, name='signin'),
     path('logout', views.logout, name='logout'),
     path('admin_approval', views.admin_approval, name='admin_approval'),
+    path('approved_post',views.approved_post,name='approved_post'),
     re_path(r'^comment/(?P<post_id>[\w-]+)/$', views.add_comment, name='comment'),
     path('delete/<uuid:post_id>/', delete_post, name='delete_post'),
     path('comment/delete/<int:comment_id>/', views.delete_comment, name='delete_comment'),

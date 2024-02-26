@@ -33,44 +33,45 @@
             margin: 5px 0;
         }
         
-        /* Styling for user posts */
-        .user-posts {
-            list-style-type: none;
-            padding: 0;
-        }
-        
-        .user-post {
-            background-color: #f9f9f9;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .user-post:hover {
-            background-color: #f0f0f0;
-        }
-        
-        .user-post a {
-            text-decoration: none;
-            color: #333;
-        }
-        
-        .user-post p {
-            margin: 5px 0;
-        }
-        
-        .user-post strong {
-            font-weight: bold;
-        }
-        
-        .post-image {
-            max-width: 200px;
-            border-radius: 10px;
-        }
-        .post-caption {
-            word-wrap: break-word; /* Ensures long words are broken and wrap onto the next line */
-}
+        table.user-posts {
+        width: 100vh;
+        border-collapse: collapse;
+    }
+
+    table.user-posts th, table.user-posts td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    table.user-posts th {
+        background-color: #f2f2f2;
+    }
+
+    table.user-posts img {
+        max-width: 100px;
+        max-height: 100px;
+        cursor: pointer;
+    }
+
+    table.user-posts td a {
+        text-decoration: none;
+        color: black;
+    }
+
+    .delete-button {
+        background-color: red;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .delete-button:hover {
+        background-color: rgb(167, 13, 13);
+    }
 
     </style>
     {% endblock style %}
@@ -91,19 +92,51 @@
 
 <!-- User Posts -->
 <h2>User Posts</h2>
-<ul class="user-posts">
-    {% for post in user_posts %}
-    <li class="user-post">
-        <a href="{% url 'post_details' post.id %}">
-            <p class="post-caption"><strong>Caption:</strong> {{ post.caption }}</p>
-            {% if post.image %}
-            <img class="post-image" src="{{ post.image.url }}" alt="Post Image">
-            {% else %}
-            <p>No Image</p>
-            {% endif %}
-            <!-- Display other post information as needed -->
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+<table class="user-posts">
+    <thead>
+        <tr>
+            <th>SN</th>
+            <th>Caption</th>
+            <th>Budget</th>
+            <th>Post Images</th>
+            <th>Post Attachments</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in user_posts %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ post.caption }}</td>
+            <td>{{ post.budget }}</td>
+            <td>
+                {% if post.post_images %}
+                <ul class="post-images" style="display: flex; flex-direction: row;">
+                    {% for image in post.post_images %}
+                    <li><img src="{{ image.image.url }}" alt="Post Image" width="100px" style="border-radius: 10px;"></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </td>
+            <td>
+                {% if post.post_attachments %}
+                <ul class="post-attachments">
+                    {% for attachment in post.post_attachments %}
+                    <li>{{ attachment.attachment.url }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </td>
+            <td>
+                <form action="" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                    <button type="submit" name="action" value="reject" class="delete-button">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock rightcontainer %}

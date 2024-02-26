@@ -1,10 +1,5 @@
 {% extends 'adminBase.html' %}
 {% load static %}
-
-{% block title %}
-Home - SISS
-{% endblock %}
-
 {% block style %}
 <style>
     table {
@@ -62,8 +57,7 @@ Home - SISS
 {% endblock style %}
 
 {% block rightcontainer %}
-<div class="maincontainer">
-<h1>Pending Posts for Approval</h1>
+<h1>Approved Posts</h1>
 <div>
     <table>
         <thead>
@@ -72,15 +66,15 @@ Home - SISS
                 <th>User</th>
                 <th>Caption</th>
                 <th>Post</th>
-                <th>Actions</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            {% for post in pending_posts %}
+            {% for post in approved_posts %}
             <tr>
                 <td>{{ forloop.counter }}</td> <!-- Display serial number -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a>  </td> <!-- Display user -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 40 words #}</a>   </td> <!-- Display caption -->
+                <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a></td> <!-- Display user -->
+                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 20 words #}</a></td> <!-- Display caption -->
                 <!-- Check if post has an image -->
                 <td>
                     {% if post.image %}
@@ -91,12 +85,11 @@ Home - SISS
                     No Image
                     {% endif %}
                 </td>
-                <!-- Display buttons for approval or deletion -->
+                <!-- Display delete button for approved posts -->
                 <td>
-                    <form action="{% url 'admin_approval' %}" method="post">
+                    <form action="" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="post_id" value="{{ post.id }}">
-                        <button type="submit" name="action" value="approve" class="approve_button">Approve</button>
                         <button type="submit" name="action" value="reject" class="delete-button">Delete</button>
                     </form>
                 </td>
@@ -105,7 +98,4 @@ Home - SISS
         </tbody>
     </table>
 </div>
-
-
-
-{% endblock rightcontainer %}
+{% endblock %}

@@ -223,17 +223,17 @@ a{
         {% endif %}
 
         
-
+        <h2>Attachments:</h2>
+        <ul>
+            {% for attachment in post_attachments %}
+                <li><a href="{{ attachment.attachment.url }}" target="_blank">{{ attachment.attachment.name }}</a></li>
+            {% endfor %}
+        </ul>
         {% for image in post_images %}
-        <img src="{{ image.image.url }}" alt="Image" width="200">
+        <img src="{{ image.image.url }}" alt="Image" width="400" style="border-radius: 10px; margin-left: 10px;">
     {% endfor %}
 
-    <h2>Attachments:</h2>
-    <ul>
-        {% for attachment in post_attachments %}
-            <li><a href="{{ attachment.attachment.url }}" target="_blank">{{ attachment.attachment.name }}</a></li>
-        {% endfor %}
-    </ul>
+    
 
         <div class="tweets-like-and-comments">
            
@@ -247,17 +247,18 @@ a{
                             </div>
                         </div>
                         <div class="tweets-like-and-comments">
-                            <a href="{% url 'comment' post.id %}" class="flex items-center space-x-2">
+                            <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2">
                                 <div class="tweets-like-and-number">
                                     <img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
-                                    <p style="color:black; text-decoration: none;" class="tweet-liked-number">
+                                    <p class="tweet-liked-number">
                                         {% if post.no_of_likes == 0 %}
-                                    <p style="color:black; text-decoration: none;">0</p>
-                                    {% elif post.no_of_likes == 1 %}
-                                    <p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
-                                    {% else %}
-                                    <p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
-                                    {% endif %}</p>
+                                        <p>0</p>
+                                        {% elif post.no_of_likes == 1 %}
+                                        <p>{{post.no_of_likes}}</p>
+                                        {% else %}
+                                        <p>{{post.no_of_likes}}</p>
+                                        {% endif %}
+                                    </p>
                                 </div>
                             </a>
                             <div class="comment_align">

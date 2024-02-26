@@ -15,11 +15,26 @@
     th {
         background-color: #f2f2f2;
     }
+     /* Style for the delete button */
+     .delete-button {
+        background-color: red; /* Red color for danger */
+        color: white; /* White text color */
+        padding: 10px 20px; /* Padding around the text */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer; /* Cursor style */
+        font-size: 16px; /* Font size */
+    }
+
+    /* Hover effect for the delete button */
+    .delete-button:hover {
+        background-color: rgb(170, 10, 10); /* Darker shade of red on hover */
+    }
 </style>
 {% endblock style %}
     
 {% block rightcontainer %}
-<h1>Delete Users</h1>
+<h1>Users</h1>
     
 <table>
   <tr>
@@ -30,16 +45,16 @@
     <th>Action</th>
   </tr>
   {% for user in users %}
-  <tr>
+  <tr >
     <td>{{ user.id }}</td>
-    <td><a href="{% url 'user_posts' user.id %}">{{ user.first_name|title }} {{ user.last_name|title }}</a></td>
+    <td ><a href="{% url 'user_posts' user.id %}" style="text-decoration: none; color: black;">{{ user.first_name|title }} {{ user.last_name|title }}</a></td>
     <td>{{ user.email }}</td>
     <td>{{ user.username }}</td>
     <td>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="user_id" value="{{ user.id }}">
-            <button type="submit">Delete User</button>
+            <button type="submit" class="delete-button">Delete User</button>
         </form>
     </td>
   </tr>

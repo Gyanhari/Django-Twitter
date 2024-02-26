@@ -233,10 +233,10 @@ def like_post(request):
 def profile(request, pk):
     user_object = User.objects.get(username=pk)
     user_profile = Profile.objects.get(user=user_object)
-    user_posts = Post.objects.filter(user=pk)
-    user_post_length = Post.objects.filter(approved=True, user=user_profile.user).count()
+    user_posts = Post.objects.filter(user=pk, approved=True)
+    user_post_length = user_posts.count()
     user_email = request.user.email
-
+    
     # Fetch followers and following users
     followers = FollowersCount.objects.filter(user=pk).values_list("follower", flat=True)
     following = FollowersCount.objects.filter(follower=pk).values_list("user", flat=True)
@@ -248,13 +248,10 @@ def profile(request, pk):
     # Calculate total view count for all posts of the user
     total_view_count = sum(post.view_count for post in user_posts)
 
-    # Fetching budget for each post
-    budgets = [post.budget for post in user_posts]
-
     # Check if the logged-in user is viewing their own profile
     if request.user.username == pk:
         # If the logged-in user is viewing their own profile, show all approved posts
-        user_posts_to_display = user_posts.filter(approved=True)
+        user_posts_to_display = user_posts
         user_profile_picture_url = user_profile.profileimg.url  # Profile image URL of the logged-in user
     else:
         # If the logged-in user is viewing another user's profile
@@ -264,12 +261,16 @@ def profile(request, pk):
             user_posts_to_display = user_posts
         else:
             # If the user is not followed, show only approved posts
-            user_posts_to_display = user_posts.filter(approved=True).order_by("-created_at")[:4]
+            user_posts_to_display = user_posts.order_by("-created_at")[:4]
         visited_user_profile = Profile.objects.get(user=request.user)  
         user_profile_picture_url = visited_user_profile.profileimg.url  
 
     for post in user_posts_to_display:
         post.comment_count = Comment.objects.filter(post=post).count()
+        post_images = PostImage.objects.filter(post=post)
+        post_attachments = PostAttachment.objects.filter(post=post)
+        post.post_images = post_images
+        post.post_attachments = post_attachments
 
     user_followers = len(FollowersCount.objects.filter(user=pk))
     user_following = len(FollowersCount.objects.filter(follower=pk))
@@ -303,7 +304,9 @@ def profile(request, pk):
             messages.error(request, "Invalid rating form. Please try again.")
     else:
         rating_form = RatingForm()
-
+        
+    # Fetching budget for each post
+    budgets = [post.budget for post in user_posts]
     # Calculate average rating for each post
     average_ratings = {}
     for post in user_posts_to_display:
@@ -328,6 +331,7 @@ def profile(request, pk):
         "average_ratings": average_ratings,  # Pass average ratings to the template context
     }
     return render(request, "profile.html", context)
+
 
 
 
@@ -499,6 +503,37 @@ def admin_approval(request):
         {"pending_posts": pending_posts, "approved_posts": approved_posts},
     )
 
+@staff_member_required
+def approved_post(request):
+    if request.method == "POST":
+        post_id = request.POST.get("post_id")
+        action = request.POST.get("action")  # 'approve' or 'reject'
+
+        try:
+            post = Post.objects.get(id=post_id)
+
+            if action == "approve":
+                post.approved = True
+                post.save()
+            elif action == "reject":
+                post.delete()  # Or any other action you want for rejection
+
+        except ObjectDoesNotExist:
+            pass
+
+
+    pending_posts = Post.objects.all()
+
+
+    approved_posts = pending_posts.filter(approved=True)
+ 
+
+    return render(
+        request,
+        "approved_post.html",
+        { "approved_posts": approved_posts},
+    )
+
 
 
 from django.contrib.auth.models import User
@@ -528,8 +563,37 @@ def user_posts(request, user_id):
     user = get_object_or_404(User, id=user_id)
     user_posts = Post.objects.filter(user=user)
     user_profile = get_object_or_404(Profile, user=user)
+    if request.method == "POST":
+        post_id = request.POST.get("post_id")
+        action = request.POST.get("action")  # 'approve' or 'reject'
+
+        try:
+            post = Post.objects.get(id=post_id)
+
+            if action == "approve":
+                post.approved = True
+                post.save()
+            elif action == "reject":
+                post.delete()  # Or any other action you want for rejection
+
+        except ObjectDoesNotExist:
+            pass
+
+
+    pending_posts = Post.objects.all()
+
+
+    approved_posts = pending_posts.filter(approved=True)
+    pending_posts = pending_posts.filter(approved=False)
+
     
-    return render(request, "user_posts.html", {"user": user, "user_profile": user_profile, "user_posts": user_posts})
+    # Fetch images and attachments associated with each post
+    for post in user_posts:
+        post.post_images = PostImage.objects.filter(post=post)
+        post.post_attachments = PostAttachment.objects.filter(post=post)
+    
+    return render(request, "user_posts.html", {"user": user, "user_profile": user_profile, "user_posts": user_posts,"pending_posts": pending_posts, "approved_posts": approved_posts})
+
 
 
 from django.db.models import Avg
@@ -569,7 +633,8 @@ def add_comment(request, post_id):
         text = request.POST.get("comment_text")
         
         if not text:  
-            messages.error(request, "Please fill in the comment field.")
+            # messages.error(request, "Please fill in the comment field.")
+            pass
         else:
             profile = Profile.objects.get(user=user)
             post_user_profile_picture_url = profile.profileimg.url
@@ -584,9 +649,10 @@ def add_comment(request, post_id):
         if rating_form.is_valid():
             rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
             Rating.objects.create(post=post, user=user, rating=rating)  # Create and save the Rating object
-            messages.success(request, "Rating submitted successfully.")
+            # messages.success(request, "Rating submitted successfully.")
         else:
-            messages.error(request, "Invalid rating form. Please try again.")
+            # messages.error(request, "Invalid rating form. Please try again.")
+            pass
 
     else:
         rating_form = RatingForm()
@@ -659,10 +725,13 @@ def delete_comment(request, comment_id):
 
 
 @staff_member_required
-def post_details(request, post_id):
+def post_details(request, post_id,user_id):
     post = get_object_or_404(Post, id=post_id)
     comments = Comment.objects.filter(post=post)
     likes = LikePost.objects.filter(post_id=post_id)
+    user = get_object_or_404(User, id=user_id)
+    user_posts = Post.objects.filter(user=user)
+    user_profile = get_object_or_404(Profile, user=user)
     
     # Fetch user information for each like
     liked_users = User.objects.filter(username__in=[like.username for like in likes])
@@ -682,11 +751,15 @@ def post_details(request, post_id):
             if not liked:
                 like = LikePost.objects.create(post_id=post_id, user_id=user_id)
                 like.save()
+        elif action == 'delete_post':
+            post.delete()
+            return redirect(delete_user)
+
 
     return render(
         request,
         "post_details.html",
-        {"post": post, "comments": comments, "likes": likes_with_users}
+        {"post": post, "comments": comments, "likes": likes_with_users,"user_profile": user_profile}
     )
 
 
