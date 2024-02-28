@@ -1,0 +1,35 @@
+{% extends 'home.html' %}
+{% load static %}
+{% block title %}Messages --SSIS{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/chat_index.css' %}">
+{% endblock %}
+
+{% block nav-chat %}
+<a href="{% url 'chat_index' %}">
+    <div><img class="nav-component-img-active" src="{% static 'images/message.svg' %}" alt="">
+    </div>
+</a>
+<div class="nav-image-text"><a class="navbar-links-active" href="{% url 'chat_index' %}"><b>Messages</b></a></div>
+{% endblock %}
+{% block profile %}
+manish
+{% endblock %}
+{% block middle-block %}
+    <!-- <div class="chat-header">
+        SISS -- Messenger
+    </div> -->
+    <div class="chat-main-container">
+        <div class="chat-user-sidebar-profile">
+            <div class="available-user">Users</div>
+            {% for user in users %}
+            <div class="available-user-information">  
+                <div class="user-profile-image-container"><img class="user-profile-image" src="{% static 'assets/dp.png' %}" alt=""></div>
+                <div class="user-profile-name"><a class="user-profile-name-anchor" href="{% url 'chat' username=user.username %}">{{user.username}}</a></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% block user-message-container %}{% endblock %}
+    </div>
+{% endblock %}

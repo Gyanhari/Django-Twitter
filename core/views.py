@@ -188,6 +188,7 @@ def upload(request):
 def search(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
+    
 
     if request.method == "POST":
         username = request.POST["username"]
@@ -234,12 +235,10 @@ def like_post(request):
 
 @login_required(login_url="signin")
 def profile(request, pk):
-    user_object = User.objects.get(username=pk)
-    user_profile = Profile.objects.get(user=user_object)
-    user_posts = Post.objects.filter(user=pk, approved=True)
-    user_post_length = user_posts.count()
+    user_object = get_object_or_404(User, username=pk)
+    user_profile = get_object_or_404(Profile, user=user_object)
     user_email = request.user.email
-    
+
     # Fetch followers and following users
     followers = FollowersCount.objects.filter(user=pk).values_list("follower", flat=True)
     following = FollowersCount.objects.filter(follower=pk).values_list("user", flat=True)
@@ -249,6 +248,7 @@ def profile(request, pk):
     following_users = User.objects.filter(username__in=following)
 
     # Calculate total view count for all posts of the user
+    user_posts = Post.objects.filter(user=pk, approved=True)
     total_view_count = sum(post.view_count for post in user_posts)
 
     # Check if the logged-in user is viewing their own profile
@@ -268,12 +268,13 @@ def profile(request, pk):
         visited_user_profile = Profile.objects.get(user=request.user)  
         user_profile_picture_url = visited_user_profile.profileimg.url  
 
-    for post in user_posts_to_display:
-        post.comment_count = Comment.objects.filter(post=post).count()
-        post_images = PostImage.objects.filter(post=post)
-        post_attachments = PostAttachment.objects.filter(post=post)
-        post.post_images = post_images
-        post.post_attachments = post_attachments
+    # Fetch followed users' posts and calculate average ratings
+    followed_users_posts = Post.objects.filter(user__in=following, approved=True)
+    average_ratings = {}
+    for post in followed_users_posts:
+        ratings = Rating.objects.filter(post=post)
+        average_rating = ratings.aggregate(Avg('rating'))['rating__avg'] or 0
+        average_ratings[post.id] = average_rating
 
     user_followers = len(FollowersCount.objects.filter(user=pk))
     user_following = len(FollowersCount.objects.filter(follower=pk))
@@ -309,18 +310,13 @@ def profile(request, pk):
         rating_form = RatingForm()
         
     # Fetching budget for each post
-    budgets = [post.budget for post in user_posts]
-    # Calculate average rating for each post
-    average_ratings = {}
-    for post in user_posts_to_display:
-        average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
-        average_ratings[post.id] = average_rating
+    budgets = [post.budget for post in user_posts_to_display]
 
     context = {
         "user_object": user_object,
         "user_profile": user_profile,
         "user_posts": user_posts_to_display,
-        "user_post_length": user_post_length,
+        "user_post_length": user_posts_to_display.count(),
         "user_followers": user_followers,
         "user_following": user_following,
         "followers": follower_users,
@@ -629,13 +625,14 @@ def add_comment(request, post_id):
 
     # Check if the user has already viewed this post recently
     user = request.user
-    if not ViewedPost.objects.filter(post=post, user=user, viewed_at__gte=timezone.now() - timezone.timedelta(days=1)).exists():
+    viewed_post, created = ViewedPost.objects.get_or_create(post=post, user=user)
+    if created or viewed_post.viewed_at < timezone.now() - timezone.timedelta(days=1):
         # Increment the view count of the post
         post.view_count += 1
         post.save()
 
-        # Record the view in the database   
-        viewed_post = ViewedPost.objects.create(post=post, user=user)
+        # Update the timestamp of the viewed post
+        viewed_post.viewed_at = timezone.now()
         viewed_post.save()
 
     logged_in_user_profile_picture_url = Profile.objects.get(user=request.user).profileimg.url
@@ -663,7 +660,15 @@ def add_comment(request, post_id):
         rating_form = RatingForm(request.POST)
         if rating_form.is_valid():
             rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
-            Rating.objects.create(post=post, user=user, rating=rating)  # Create and save the Rating object
+            # Check if the user has already rated this post
+            existing_rating = Rating.objects.filter(post=post, user=user).first()
+            if existing_rating:
+                # If the user has already rated, update the existing rating
+                existing_rating.rating = rating
+                existing_rating.save()
+            else:
+                # If the user hasn't rated yet, create a new rating
+                Rating.objects.create(post=post, user=user, rating=rating)
             # messages.success(request, "Rating submitted successfully.")
         else:
             # messages.error(request, "Invalid rating form. Please try again.")
@@ -692,7 +697,6 @@ def add_comment(request, post_id):
         "post_images": post_images,
         "post_attachments": post_attachments,
     })
-
 
 
 

@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls'))
+    path('', include('core.urls')),
+    path('chat/',include('chat.urls'))
 ]
 
 urlpatterns = urlpatterns+static(settings.MEDIA_URL,

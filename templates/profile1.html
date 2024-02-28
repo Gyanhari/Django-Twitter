@@ -1,0 +1,318 @@
+{% extends 'home.html' %}
+{% load static %}
+
+{% block title %}
+Profile - SISS
+{% endblock %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+<!-- {% block nav-profile %}
+<div><img class="nav-component-img-active size-big-vayo" src="{% static 'images/profile.svg' %}" alt=""></div>
+<div class="nav-image-text"><a class="navbar-links-active" href=""><b>Profile</b></a></div>
+{% endblock %} -->
+{% block profile %}
+{{user_profile_picture_url}}
+{% endblock %}
+
+
+{% block middle-block %}
+<div class="middle-profile-main-container">
+
+	<div class="profile-top-component">
+		<a class="back-button-link" href="{% url 'index' %}">
+			<img class="profile-back-button" src="{% static 'images/back.svg' %}" alt="">
+		</a>
+		<div class="profile-top-user-info">
+			<p class="profile-top-name">{{user_profile.user.username|title}}</p>
+			<p class="profile-top-number-of-tweets">{{user_post_length}} Posts</p>
+		</div>
+	</div>
+	<div class="profile-mid-cover-and-profile">
+		<div class="mid-profile-pic-div">
+			<img class="mid-profile-pic-image" src="{{user_profile.profileimg.url}}" alt="Chad Women">
+			<div class="profile-user-information">
+				<div class="profile_username">
+					<form action="/follow" method="POST">
+						{% csrf_token %}
+						<div class="username_follow">
+							<p class="mid-profile-user-name"><strong>{{user_profile.user.first_name|title}}
+									{{user_profile.user.last_name|title}}<small>
+										{{user_profile.location}}</small></strong></p><br>
+							{% if user_object.username == user.username %}
+							{% else %}
+							<div class="setting-and-edit-profile">
+								<a data-ripple=""><button class="follow-and-unfollow"
+										type="submit">{{button_text}}</button></a>
+								<!-- <button type="submit">Chat</button> -->
+							</div>
+							{% endif %}
+						</div>
+						<br>
+						<!-- Popup container -->
+						<div id="popup-container" style="display: none;">
+							<div id="popup-content"></div>
+						</div>
+						<div class="add-btn">
+
+							<div class="number-of-follower">
+								{% if user_post_length == 0 %}
+								<span style="color: black; font-size: 20px;">No Post</span>
+								{% elif user_post_length == 1 %}
+								<span style="color: black; font-size: 20px;">{{user_post_length}} Post</span>
+								{% else %}
+								<span style="color: black; font-size: 20px;">{{user_post_length}} Posts</span>
+								{% endif %}
+
+								{% if request.user.username == user_object.username %}
+								{% if user_followers == 0 or user_followers == 1 %}
+									<!-- <span style="color: black; font-size: 20px;">{{ user_followers }} follower</span> -->
+								{% else %}
+									<!-- <span style="color: black; font-size: 20px;">{{ user_followers }} followers</span> -->
+								{% endif %}
+								<span style="color: black; font-size: 20px;"><a href="{% url 'followers_popup' %}" id="followers-link">{{ user_followers }} followers</a></span>
+								<span style="color: black; font-size: 20px;"><a href="{% url 'following_popup' %}" id="following-link">{{ user_following }} following</a></span>
+							{% else %}
+								<span style="color: black; font-size: 20px;">{{ user_followers }} followers</span>
+								<span style="color: black; font-size: 20px;">{{ user_following }} following</span>
+							{% endif %}
+
+							</div>
+
+							<!-- <input type="hidden" value="{{user.username}}" name="follower" />
+							<input type="hidden" value="{{user_object.username}}" name="user" /> -->
+
+							<!-- <h2>Followers</h2>
+							<ul>
+							  {% for follower in followers %}
+								<li>{{ follower.username }}</li>
+							  {% endfor %}
+							</ul>
+							
+							<h2>Following</h2>
+							<ul>
+							  {% for user in following %}
+								<li>{{ user.username }}</li>
+							  {% endfor %}
+							</ul> -->
+							
+
+						</div>
+						<!-- <p><small><b>Email: </b>{{ user_email }}</small></p> -->
+						<p><small><b>Email: </b>{{ user_profile.user.email }}</small></p>
+
+						<br>
+						<p><small>{{user_profile.bio}}</small></p><br>
+
+
+
+					</form>
+				</div>
+			</div>
+		</div>
+
+		{% block follower_following %}{% endblock %}
+
+	</div>
+	<div></div>
+	{% if messages %}
+	<div class="messages">
+		{% for message in messages %}
+		<p style="color:red" class="{% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</p>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% for post in user_posts|dictsortreversed:"created_at" %}
+	{% if post.approved %} <!-- Check if the post is approved -->
+	<div class="tweets-main-block">
+		<div class="tweets-block-user-info">
+			<div class="tweets-block-profile-image">
+				<img class="tweets-user-profile-picture" src="{{user_profile.profileimg.url}}" alt="">
+			</div>
+			<div class="tweets-block-user-info">
+				<p><strong><small>{{post.user|title}}</small> </strong></p>
+				<p style="color:#666"><small>@{{post.first_name}} {{post.last_name}}</small></p>
+				<p></p>
+				<p>
+				<h3>&#x2022;</h3>
+				</p>
+				<div style="display: flex; flex-direction: column;">
+					<p style="color:#666"><small>{{post.created_at}}</small></p>
+				</div>
+				<div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+					<p>{{ post.average_rating|floatformat:"1" }}</p>
+					<img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="23px" width="23px">
+				</div>
+				{% if user_object.username == request.user.username %}
+				<form id="delete-form-{{ post.id }}" action="{% url 'delete_post' post.id %}" method="post">
+					{% csrf_token %}
+					<button type="button" class="delete-post-button" style="border: none; margin-left: 15px;">
+						<img class="tweet-not-liked" src="{% static 'images/icons8-delete.svg' %}" alt=""
+							style="height: 20px; width: 20px; border: none;">
+
+					</button>
+				</form>
+				{% endif %}
+
+			</div>
+			<!-- <div class="tweets-user-rating">
+				asdasdsa
+			</div> -->
+		</div>
+		<div class="tweets-main-body">
+			{% if post.caption %}
+			<!-- Assuming post.caption contains the text you want to display -->
+			{% if post.caption %}
+			{% if post.caption|wordcount > 20 %} {# Assuming you want to display only 20 words initially #}
+			<p class="tweets-main-body-desc" style="font-size: medium;">
+				{{ post.caption|truncatewords_html:10 }} {# Truncate the text to 20 words #}
+				<a href="{% url 'comment' post.id %}" class="see-more-link"
+					style="color: blue; text-decoration: none;">See more</a>
+			</p>
+			<!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+			{% else %}
+			<p class="tweets-main-body-desc" style="font-size: medium;">{{ post.caption }}</p>
+			{% endif %}
+			{% endif %}
+
+			{% endif %}
+			{% if post.budget %}
+			<p style="font-size: medium;"><b>Budget:</b> {{ post.budget }}</p><br>
+			{% else %}
+
+
+			{% endif %}
+			<div class="image_file" style="display: flex; flex-direction: column; text-decoration: none;">
+				<!-- Display attachments -->
+				{% for attachment in post.post_attachments.all %}
+				<a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank" style="text-decoration: none; color: black;">{{attachment.attachment.name}}</a>
+				{% endfor %}
+			<div class="mul_image" style="display: flex; flex-direction: row;">
+				{% for image in post.post_images.all %}
+				<div class="mulimage" style="display: flex; flex-direction: column;">
+				{% if forloop.counter0 < 2 %}
+					<img src="{{ image.image.url }}" class="img-fluid" alt="Post Image"  width="400px" style="border-radius: 10px; margin-left: 10px;">
+				{% elif forloop.counter0 == 2 %}
+					<p><a href="{% url 'comment' post.id %}" style="margin-left: 100px; margin-top: 100px; text-decoration: none; color: black;">See more</a></p>
+				{% endif %}
+				
+			</div>
+			{% endfor %}
+		</div>
+			<div class="tweets-like-and-comments">
+				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2"
+					style="text-decoration:  none;">
+					<div class="tweets-like-and-number">
+						<img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
+						<p style="color:black; text-decoration: none;" class="tweet-liked-number">
+							{% if post.no_of_likes == 0 %}
+						<p style="color:black; text-decoration: none;">0</p>
+						{% elif post.no_of_likes == 1 %}
+						<p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
+						{% else %}
+						<p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
+						{% endif %}</p>
+					</div>
+				</a>
+				<a href="{% url 'comment' post.id %}"
+					style="display: flex; flex-direction: row; gap: 10px; text-decoration: none; color: black;">
+					<img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
+					<p> {{ post.comment_count }}</p>
+					<img class="tweet-not-liked" src="{% static 'images/icons8-eye-48.png' %}" alt=""
+						style="height: 22px; width: 22px; margin-left: 50px;">
+					<p>{{ post.view_count }}</p>
+				</a>
+
+
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	{% endfor %}
+</div>
+
+</div>
+<!-- JavaScript for confirmation popup -->
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+		var deleteButtons = document.querySelectorAll('.delete-post-button');
+
+		deleteButtons.forEach(function (button) {
+			button.addEventListener('click', function () {
+				var postId = button.parentElement.getAttribute('id').replace('delete-form-', '');
+				var confirmation = confirm('Are you sure you want to delete this post?');
+
+				if (confirmation) {
+					document.getElementById('delete-form-' + postId).submit();
+				}
+			});
+		});
+	});
+
+</script>
+{% endblock %}
+
+
+
+{% block right_block %}
+<form action="/search" method="POST">
+    {% csrf_token %}
+    <div class="right-search-bar">
+        <label for="search-box"></label>
+        <input id="search-box" type="text" name="username" placeholder="Search for user">&nbsp;
+        &nbsp;
+        <div class="right-search-button"><img class="search-bar-image"
+                src="{% static 'images/search.svg' %}" alt=""></div>
+        <!-- <button class="right-search-bar-search-text">Search</button> -->
+    </div>
+</form>
+<div class="right-posts"	>
+    <div class="right-posts-heading">Posts of the month</div>
+
+    {% for post in user_posts|slice:":5" %}
+    <a href="{% url 'comment' post.id %}" style="text-decoration: none; color: black;">
+        <div class="right-top-post">
+            <div class="top-post-main-container">
+                <div class="right-top-post-user-info">
+                    <p><strong>{{post.user|title}}</strong></p>
+                    <p><h3>&#x2022;</h3></p>
+                    <p>{{post.created_at}}</p>
+                     <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                        <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
+                        <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
+                    </div> 
+                </div>
+                {% if post.caption %}
+                 {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                    <p class="tweets-main-body-desc">
+                     {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                     <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                     
+                    </p>
+            <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+            {% else %}
+                    <p class="tweets-main-body-desc">{{ post.caption }}</p>
+            {% endif %}
+            {% endif %}
+            </div>
+            {% if post.image %}
+            <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+            {% endif %}
+        </div>  
+    </a>
+    {% endfor %}
+
+</div>
+            
+        </div>
+
+{% endblock right_block %}
+
+
+
+
+
+
+

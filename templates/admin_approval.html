@@ -60,7 +60,14 @@ Home - SISS
     }
 </style>
 {% endblock style %}
-
+{% block nav-pending %}
+                            <a href="{% url 'admin_approval' %}">
+                                <div><img class="nav-component-img-active" src="{% static 'images/message.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links-active" href="{% url 'admin_approval' %}"><b>Pending Post</b></a></div>
+                        </li>
+                            {% endblock %}
 {% block rightcontainer %}
 <div class="maincontainer">
 <h1>Pending Posts for Approval</h1>

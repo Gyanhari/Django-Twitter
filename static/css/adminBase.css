@@ -103,7 +103,7 @@
 }
 .navbar-links-active{
     text-decoration: none;
-    color: #0038FF;
+    color: red;
     font-size: 20px;
 }
 .logout-button-container{

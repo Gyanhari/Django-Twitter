@@ -26,7 +26,7 @@
                                 <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">
                                 </div>
                             </a>
-                            <div class="nav-image-text" ><a class="navbar-links" href="{% url 'index' %}"><b>Home</b></a>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'index' %}"><b>Home</b></a>
                             </div>
                             {% endblock %}
                         </li>
@@ -37,11 +37,13 @@
                                     popovertargetaction="show"><b>New Post</b></button></div>
                         </li>
                         <li class="nav-ul-li">
-                            <a href="">
+                            {% block nav-chat %}
+                            <a href="{% url 'chat_index' %}">
                                 <div><img class="nav-component-img" src="{% static 'images/message.svg' %}" alt="">
                                 </div>
                             </a>
-                            <div class="nav-image-text"><a class="navbar-links" href=""><b>Messages</b></a></div>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'chat_index' %}"><b>Messages</b></a></div>
+                            {% endblock %}
                         </li>
                         <li class="nav-ul-li">
                             {% block nav-profile %}
@@ -76,7 +78,8 @@
                                     color: black;
                                     text-decoration: none;
                                 " href="/profile/{{user.username}}">
-                                <p class="user-profile-name" style="font-size: medium;">{{user.first_name|title}} {{user.last_name|title}}</p>
+                                <p class="user-profile-name" style="font-size: medium;">{{user.first_name|title}}
+                                    {{user.last_name|title}}</p>
                                 <p class="user-profile-handle" style="font-size: medium;">@{{user.username|title}}</p>
                             </a>
                         </div>
@@ -84,7 +87,8 @@
                             <!-- <img class="user-profile-more-image" src="{% static 'images/more.svg' %}" alt="more"> -->
                             <div class="user-profile-more-options"></div>
                         </div>
-                        <a href="/settings" data-ripple=""><img class="tweet-not-liked" src="{% static 'images/icons8-admin-settings-male-24.png' %}" alt=""></a>
+                        <a href="/settings" data-ripple=""><img class="tweet-not-liked"
+                                src="{% static 'images/icons8-admin-settings-male-24.png' %}" alt=""></a>
                     </div>
                 </div>
                 <!-- </a> -->
@@ -117,18 +121,76 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="middle-container">
             {% block middle-block %}
 
             {% endblock %}
         </div>
+
+
         <div class="right-container">
+
             {% block right_block %}
-            {% endblock right_block %}
+            <form action="/search" method="POST">
+                {% csrf_token %}
+                <div class="right-search-bar">
+                    <label for="search-box"></label>
+                    <input id="search-box" type="text" name="username" placeholder="Search for user">&nbsp;
+                    &nbsp;
+                    <div class="right-search-button"><img class="search-bar-image"
+                            src="{% static 'images/search.svg' %}" alt=""></div>
+                    <!-- <button class="right-search-bar-search-text">Search</button> -->
+                </div>
+            </form>
+            <div class="right-posts">
+                <div class="right-posts-heading">Posts of the month</div>
             
+                {% for post in posts|slice:":5" %}
+                <a href="{% url 'comment' post.id %}">
+                    <div class="right-top-post">
+                        <div class="top-post-main-container">
+                            <div class="right-top-post-user-info">
+                                <p><strong>{{post.user|title}}</strong></p>
+                                <p><h3>&#x2022;</h3></p>
+                                <p>{{post.created_at}}</p>
+                                 <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                                    <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
+                                    <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
+                                </div> 
+                            </div>
+                            {% if post.caption %}
+                             {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
+                                <p class="tweets-main-body-desc">
+                                 {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
+                                 <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                                 
+                                </p>
+                        <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
+                        {% else %}
+                                <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                        {% endif %}
+                        {% endif %}
+                        </div>
+                        {% if post.image %}
+                        <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+                        {% endif %}
+                    </div>  
+                </a>
+                {% endfor %}
+            
+                <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
+            </div>
+                        
+            {% endblock right_block %}
+                    </div>
+            
+            
+
+
         </div>
-    </div>
+        {% block scripts %}
+        {% endblock %}
 </body>
 
 </html>

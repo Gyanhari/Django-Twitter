@@ -55,7 +55,15 @@
     }
 </style>
 {% endblock style %}
-
+{% block nav-approved %}
+                            <a href="{% url 'approved_post' %}">
+                                <div><img class="nav-component-img-active size-big-vayo"
+                                        src="{% static 'images\profile.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links-active"
+                                href="{% url 'approved_post' %}"><b>Approved Post</b></a></div>
+                            {% endblock %}
 {% block rightcontainer %}
 <h1>Approved Posts</h1>
 <div>

@@ -48,6 +48,9 @@
     width: 25vw;
     height: 100vh;
     background: #FFFFFF;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 .web-logo{
     display: flex;

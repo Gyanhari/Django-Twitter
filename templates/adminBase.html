@@ -11,8 +11,9 @@
     <style>
         .left-container{
             background-color: #3b3f52;
-            width: 12%;
+            width: 15vw;
             text-decoration: none;
+            height: 100vh;
         }
         .navbar-links{
             color: white;
@@ -20,6 +21,8 @@
         }
         .rightcontainer{
             margin-left: 200px;
+            height: 100vh;
+            overflow-y:auto;
         }
         .web-logo{
             color: white;
@@ -31,38 +34,45 @@
 <body>
     <div class="main-container">
         <div class="left-container">
-            <div class="web-logo">
-                <!-- <a href="/"><img class="project-logo" src="{% static 'images/Screenshot 2024-01-18 110003.png' %}"
-                        alt="SISS"></a> -->
-                <p><b>Admin Dashboard</b></p>
-            </div>
             <div class="navigation-bar">
+                <h2 style="color: white; text-align: center; margin-top: 20px;">Admin Dashboard </h2>
                 <nav class="nav-component">
                     <ul class="nav-ul">
                         <li class="nav-ul-li">
-                            {% block nav-home %}
-                            <a href="{% url 'delete_user' %}" style="text-decoration: none; color: white;">
-
-                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt=""><b>Users</b>
+                            {% block nav-user %}
+                            <a href="{% url 'delete_user' %}" >
+                                <div><img class="nav-component-img" src="{% static 'images/home.svg' %}" alt="">
                                 </div>
                             </a>
-
-                        </div>
+                            <div class="nav-image-text" ><a class="navbar-links" href="{% url 'delete_user' %}" ><b>Users</b></a>
+                            </div>
                             {% endblock %}
                         </li>
                         <li class="nav-ul-li">
-                            <a href="">
+                            {% block nav-pending %}
+                            <a href="{% url 'admin_approval' %}">
                                 <div><img class="nav-component-img" src="{% static 'images/message.svg' %}" alt="">
                                 </div>
                             </a>
-                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'admin_approval' %}"><b>Pending Posts</b></a></div>
+                            <div class="nav-image-text"><a class="navbar-links" href="{% url 'admin_approval' %}"><b>Pending Post</b></a></div>
                         </li>
-                        <li>
-                            <a href="{% url 'approved_post' %}" style="text-decoration: none; color: white;"><b>Approved Post</b></a>
+                            {% endblock %}
+                        <li class="nav-ul-li">
+                            {% block nav-approved %}
+                            <a href="{% url 'approved_post' %}">
+                                <div><img class="nav-component-img size-big-vayo"
+                                        src="{% static 'images\profile.svg' %}" alt="">
+                                </div>
+                            </a>
+                            <div class="nav-image-text"><a class="navbar-links"
+                                href="{% url 'approved_post' %}"><b>Approved Post</b></a></div>
+                            {% endblock %}
                         </li>
                     </ul>
                 </nav>
+
             </div>
+        </div>
             <div class="rightcontainer">
                 {% block rightcontainer %}{% endblock rightcontainer %}
             </div>

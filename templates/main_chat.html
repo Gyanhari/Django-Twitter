@@ -1,0 +1,47 @@
+{% extends 'chat_index.html' %}
+{% load static %}
+
+
+{% block user-message-container %}
+    <div class="chat-body-container">
+        <div class="reciever-info">            
+                {{user_obj.username}}
+        </div>
+        <div id="chat-body" class="main-chat-display">
+
+            {% for message in messages %}
+            {% if message.sender == request.user.username %}
+                <div class="my-messages-container">
+                    <p class="my-messages">
+                        {{ message.message }}
+                    </p>
+                    <small class="chat-message-time">
+                        {{ message.timestamp|time:'H:i' }}
+                    </small>
+                </div>
+            {% else %}
+            <div class="not-my-messages-container">
+                <p class="not-my-messages">
+                    {{ message.message }}
+                </p>
+                <small class="chat-message-time">
+                    {{ message.timestamp|time:'H:i' }}
+                </small>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="chat-message-input-conatainer">
+            <input id="message_input" class="chat-message-input" type="text" placeholder="Write message">
+            <button id="chat-message-submit" class="chat-message-submit-button" type="submit">Send</button>
+        </div>
+    </div>
+    {{ user_obj.username |json_script:"json-username-reciever" }}
+    {{ user_obj.id|json_script:"json-id-receiver" }}
+    {{ request.user.username|json_script:"json-message-sender" }}
+{% endblock %}
+
+
+{% block scripts %}
+    <script src="{% static 'js/chat.js' %}"></script>
+{% endblock %} 

@@ -32,9 +32,16 @@
     }
 </style>
 {% endblock style %}
-    
+    {% block nav-user %}
+    <a href="{% url 'delete_user' %}" >
+        <div><img class="nav-component-img-active" src="{% static 'images/home.svg' %}" alt="">
+        </div>
+    </a>
+    <div class="nav-image-text" ><a class="navbar-links-active" href="{% url 'delete_user' %}" ><b>Users</b></a>
+    </div>
+    {% endblock %}
 {% block rightcontainer %}
-<h1>Users</h1>
+<h1>Users</h1><br>
     
 <table>
   <tr>

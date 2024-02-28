@@ -51,9 +51,6 @@ Profile - SISS
 						</div>
 						<br>
 						<!-- Popup container -->
-<div id="popup-container" style="display: none;">
-    <div id="popup-content"></div>
-</div>
 						<div class="add-btn">
 
 							<div class="number-of-follower">
@@ -71,12 +68,38 @@ Profile - SISS
 								{% else %}
 									<!-- <span style="color: black; font-size: 20px;">{{ user_followers }} followers</span> -->
 								{% endif %}
-								<span style="color: black; font-size: 20px;"><a href="{% url 'followers_popup' %}" id="followers-link">{{ user_followers }} followers</a></span>
-								<span style="color: black; font-size: 20px;"><a href="{% url 'following_popup' %}" id="following-link">{{ user_following }} following</a></span>
-							{% else %}
-								<span style="color: black; font-size: 20px;">{{ user_followers }} followers</span>
-								<span style="color: black; font-size: 20px;">{{ user_following }} following</span>
-							{% endif %}
+									<span id="popover-trigger-for-follower" style="color: black; font-size: 20px;">{{ user_followers }} followers</span>
+									<span id="popover-trigger-for-following" style="color: black; font-size: 20px;">{{ user_following }} following</span>
+								
+									<div id="overlay-for-backround" class="overlay-for-backround"></div>
+										<div id="user-that-follow-you" class="user-that-follow-you">
+												<div class="user-that-follow-you-heading">Show Users that follow you here</div>
+												<div class="user-that-follow-you-list-container">
+													<ul class="user-that-follow-you-list">
+														<li>Ankit</li>
+														<li>Manish</li>
+														<li>Gyanhari</li>
+													</ul>
+												</div>
+										</div>
+
+										<div id="user-that-you-follow" class="user-that-you-follow">
+											<div class="user-that-you-follow-heading">Show Users that you follow here</div>
+											<div class="user-that-you-follow-list-container">
+												<ul class="user-that-you-follow-list">
+													<li>Ankit</li>
+													<li>Manish</li>
+													<li>Gyanhari</li>
+												</ul>
+											</div>
+									</div>
+
+
+								{% else %}
+									<span style="color: black; font-size: 20px;">{{ user_followers }} followers</span>
+									<span style="color: black; font-size: 20px;">{{ user_following }} following</span>
+							
+								{% endif %}
 
 							</div>
 
@@ -243,6 +266,8 @@ Profile - SISS
 
 
 <!-- JavaScript for confirmation popup -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/profile.js' %}"></script>
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
 		var deleteButtons = document.querySelectorAll('.delete-post-button');
@@ -263,7 +288,7 @@ Profile - SISS
 
 {% endblock middle-block %}
 
-
+</div>
 
 {% block right_block %}
 <form action="/search" method="POST">
@@ -277,11 +302,11 @@ Profile - SISS
         <!-- <button class="right-search-bar-search-text">Search</button> -->
     </div>
 </form>
-<div class="right-posts">
+<div class="right-posts"	>
     <div class="right-posts-heading">Posts of the month</div>
 
-    {% for post in posts|slice:":5" %}
-    <a href="{% url 'comment' post.id %}">
+    {% for post in user_posts|slice:":5" %}
+    <a href="{% url 'comment' post.id %}" style="text-decoration: none; color: black;">
         <div class="right-top-post">
             <div class="top-post-main-container">
                 <div class="right-top-post-user-info">
@@ -309,13 +334,15 @@ Profile - SISS
             {% if post.image %}
             <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
             {% endif %}
-        </div>
+        </div>  
     </a>
     {% endfor %}
 
-    <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
 </div>
-{% endblock %}
+            
+        </div>
+
+{% endblock right_block %}
 
 
 
