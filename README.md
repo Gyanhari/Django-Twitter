@@ -7,10 +7,10 @@ Contains Features Like
 - Chatting
 
 ## Sample of the Final Project
-    ![Home Page](git-images/home_page.png)
-    ![Profile Page](git-images/profile_page.png)
-    ![Message Page](git-images/message_page.png)
-    ![Admin Dashboard](git-images/admin_page.png)
+    ![Home Page](/git-images/home_page.png)
+    ![Profile Page](/git-images/profile_page.png)
+    ![Message Page](/git-images/message_page.png)
+    ![Admin Dashboard](/git-images/admin_page.png)
 
 ## Installation
 
