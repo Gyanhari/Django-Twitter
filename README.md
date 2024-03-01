@@ -28,6 +28,9 @@ This project is using a MySQL database, so you will need to have XAMPP or WAMP i
 1. **XAMPP**: Download and install XAMPP from [the official website](https://www.apachefriends.org/index.html).
 2. **WAMP**: Download and install WAMP from [the official website](https://www.wampserver.com/en/).
 
+**Database Name**: `social_book`
+import the file `database(name=social_book)` after creating the database
+
 ### Admin Credentials
 
 To access the administrative dashboard, use the following credentials:
