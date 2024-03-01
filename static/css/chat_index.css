@@ -15,19 +15,19 @@
 
 .chat-main-container{
     display: flex;
-    background-color: #EBEEF0;
+    background-color: #fffcfc;
     flex-direction: row;
     gap: 45px;
     align-items: center;
 }
 .chat-user-sidebar-profile{
     padding: 20px 30px;
-    background-color: #EBEEF0;
+    background-color: #fffcfc;
     display: flex;
     flex-direction: column;
     gap:30px;
     align-items: flex-start;
-    height: 95vh;
+    height: 100vh;
     /* justify-content: center; */
 }
 .available-user-information{
@@ -61,11 +61,11 @@
 }
 
 .chat-body-container{
-    background-color: #EBEEF0;
+    background-color: #fffbfb;
     width: 100%;
     height: 100%;
     display: flex;
-    border-left: 2px solid black;
+    border-left: 3px solid gray;
     flex-direction: column;
 }
 .main-chat-display{
@@ -80,6 +80,7 @@
 }
 .my-messages{
     background-color: rgb(10, 124, 255);
+    color: white;
     padding: 12px 20px;
     border-radius: 25px;
     margin-right: 15px;
@@ -91,7 +92,7 @@
     margin: 10px 10px;
 }
 .not-my-messages{
-    background-color: white;
+    background-color: #EBEEF0;
     padding: 12px 20px;
     border-radius: 25px;
     margin-right: 15px;

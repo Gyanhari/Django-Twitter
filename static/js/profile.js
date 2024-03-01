@@ -9,7 +9,15 @@ $(document).ready(function(){
         $('#user-that-you-follow').toggle();
         $('#overlay-for-backround').toggle();
       });
-    
+
+      $('#user-that-follow-you').click(function(){
+        $('#overlay-for-backround').show();
+      });
+
+      $('#user-that-you-follow').click(function(){
+        $('#overlay-for-backround').show();
+      });
+
       $(document).mouseup(function(e) {
         var container = $("#user-that-follow-you");
         if (!container.is(e.target) && container.has(e.target).length === 0) {

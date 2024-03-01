@@ -33,4 +33,5 @@ This project is using a MySQL database, so you will need to have XAMPP or WAMP i
 * Start apache server and mysql server 
 * Open the terminal and enter the following command
     1. `python manage.py runserver`
+* Create New user and use
 

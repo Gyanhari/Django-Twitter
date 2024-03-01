@@ -4,8 +4,8 @@
 
 {% block user-message-container %}
     <div class="chat-body-container">
-        <div class="reciever-info">            
-                {{user_obj.username}}
+        <div class="reciever-info" style="border-bottom: 3px solid gray; padding-bottom: 15px; font-size: larger;">            
+                <b>{{user_obj.username|title}}</b>
         </div>
         <div id="chat-body" class="main-chat-display">
 

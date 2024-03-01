@@ -293,7 +293,7 @@
     /* width: 150px; */
 }
 #mypopover{
-    height: 402px;
+    /* height: 402px; */
     background: #ebeef0;
     border: none;
     left: 48%;
@@ -366,7 +366,7 @@
     margin-top: 20px;
     display: flex;
     align-items: flex-start;
-    flex-direction: row;
+    flex-direction: column;
     gap: 45px;
 }
 .post-submit-button{

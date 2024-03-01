@@ -34,7 +34,7 @@
         }
         
         table.user-posts {
-        width: 130vh;
+        width: 140vh;
         border-collapse: collapse;
     }
 
@@ -79,9 +79,7 @@
 
 {% block rightcontainer %}
 <div class="profile-section">
-    <!-- Profile Image -->
     <img class="profile-image" src="{{ user_profile.profileimg.url }}" alt="Profile Image">
-    <!-- Profile Details -->
     <div class="profile-details">
         <h2>{{ user_profile.user.first_name }} {{ user_profile.user.last_name }}</h2>
         <p><strong>Username:</strong> {{ user.username }}</p>

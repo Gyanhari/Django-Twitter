@@ -42,10 +42,13 @@ Profile - SISS
 										{{user_profile.location}}</small></strong></p><br>
 							{% if user_object.username == user.username %}
 							{% else %}
-							<div class="setting-and-edit-profile">
+							<div class="setting-and-edit-profile" style="display: flex; flex-direction: row;">
 								<a data-ripple=""><button class="follow-and-unfollow"
 										type="submit">{{button_text}}</button></a>
+										{% if button_text == "Unfollow" %}
+								<a id="chatwithuser" href="{% url 'chat' username=user.username %}"><button class="follow-and-unfollow" type="button">Chat</button></a>
 								<!-- <button type="submit">Chat</button> -->
+								{% endif %}
 							</div>
 							{% endif %}
 						</div>
@@ -73,23 +76,24 @@ Profile - SISS
 								
 									<div id="overlay-for-backround" class="overlay-for-backround"></div>
 										<div id="user-that-follow-you" class="user-that-follow-you">
-												<div class="user-that-follow-you-heading">Show Users that follow you here</div>
+												<div class="user-that-follow-you-heading">Followers</div>
 												<div class="user-that-follow-you-list-container">
 													<ul class="user-that-follow-you-list">
-														<li>Ankit</li>
-														<li>Manish</li>
-														<li>Gyanhari</li>
-													</ul>
+														{% for follower in followers %}
+														<li>{{ follower.username|title }}</li>
+													{% endfor %}
+														</ul>
 												</div>
 										</div>
 
 										<div id="user-that-you-follow" class="user-that-you-follow">
-											<div class="user-that-you-follow-heading">Show Users that you follow here</div>
+											<div class="user-that-you-follow-heading">Following</div>
 											<div class="user-that-you-follow-list-container">
-												<ul class="user-that-you-follow-list">
-													<li>Ankit</li>
-													<li>Manish</li>
-													<li>Gyanhari</li>
+												<ul class="user-that-follow-you-list">
+
+													{% for followed_user in following %}
+																<li>{{ followed_user.username| title }}</li>
+															{% endfor %}
 												</ul>
 											</div>
 									</div>
@@ -172,7 +176,7 @@ Profile - SISS
 					{% csrf_token %}
 					<button type="button" class="delete-post-button" style="border: none; margin-left: 15px;">
 						<img class="tweet-not-liked" src="{% static 'images/icons8-delete.svg' %}" alt=""
-							style="height: 20px; width: 20px; border: none;">
+							style="height: 20px; width: 20px; border: none; cursor: pointer;">
 
 					</button>
 				</form>
@@ -208,32 +212,23 @@ Profile - SISS
 			{% endif %}
 			<div class="image_file" style="display: flex; flex-direction: column; text-decoration: none;">
 				<!-- Display attachments -->
-				{% for attachment in post.post_attachments.all %}
-				<a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank" style="text-decoration: none; color: black;">{{attachment.attachment.name}}</a>
-				{% endfor %}
-			<div class="mul_image" style="display: flex; flex-direction: row;">
-				{% for image in post.post_images.all %}
-				<div class="mulimage" style="display: flex; flex-direction: column;">
-				{% if forloop.counter0 < 2 %}
-					<img src="{{ image.image.url }}" class="img-fluid" alt="Post Image"  width="400px" style="border-radius: 10px; margin-left: 10px;">
-				{% elif forloop.counter0 == 2 %}
-					<p><a href="{% url 'comment' post.id %}" style="margin-left: 100px; margin-top: 100px; text-decoration: none; color: black;">See more</a></p>
-				{% endif %}
-				
-			</div>
+				{% for attachment in post.attachments.all %}
+    <a href="{{ attachment.attachment.url }}" class="btn btn-primary" target="_blank" style="text-decoration: none; color: black;">{{ attachment.attachment.name }}</a>
+{% endfor %}
+<div class="mul_image" style="display: flex; flex-direction: row;">
+    {% for image in post.images.all %}
+        <div class="mulimage" style="display: flex; flex-direction: column;">
+            {% if forloop.counter0 < 2 %}
+                <img src="{{ image.image.url }}" class="img-fluid" alt="Post Image" width="400px" style="border-radius: 10px; margin-left: 10px;">
+            {% elif forloop.counter0 == 2 %}
+                <p><a href="{% url 'comment' post.id %}" style="margin-left: 100px; margin-top: 100px; text-decoration: none; color: black;">See more</a></p>
+            {% endif %}
+        </div>
 			{% endfor %}
 		</div>
 
-
-
-
-
-
-
-
-
 			<div class="tweets-like-and-comments">
-				<a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2"
+				<!-- <a href="/like-post?post_id={{post.id}}" class="flex items-center space-x-2"
 					style="text-decoration:  none;">
 					<div class="tweets-like-and-number">
 						<img class="tweet-not-liked" src="{% static 'images/heart.svg' %}" alt="">
@@ -246,7 +241,7 @@ Profile - SISS
 						<p style="color:black; text-decoration: none;">{{post.no_of_likes}}</p>
 						{% endif %}</p>
 					</div>
-				</a>
+				</a> -->
 				<a href="{% url 'comment' post.id %}"
 					style="display: flex; flex-direction: row; gap: 10px; text-decoration: none; color: black;">
 					<img class="tweet-not-liked" src="{% static 'images/icons8-comment.svg' %}" alt="">
@@ -268,6 +263,7 @@ Profile - SISS
 <!-- JavaScript for confirmation popup -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile11.js' %}"></script>
 <script>
 	document.addEventListener('DOMContentLoaded', function () {
 		var deleteButtons = document.querySelectorAll('.delete-post-button');

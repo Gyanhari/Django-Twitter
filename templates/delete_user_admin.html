@@ -15,28 +15,28 @@
     th {
         background-color: #f2f2f2;
     }
-     /* Style for the delete button */
+
      .delete-button {
-        background-color: red; /* Red color for danger */
-        color: white; /* White text color */
-        padding: 10px 20px; /* Padding around the text */
-        border: none; /* No border */
-        border-radius: 5px; /* Rounded corners */
-        cursor: pointer; /* Cursor style */
-        font-size: 16px; /* Font size */
+        background-color: red;
+        color: white; 
+        padding: 10px 20px; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer;
+        font-size: 16px; 
     }
 
-    /* Hover effect for the delete button */
+  
     .delete-button:hover {
-        background-color: rgb(170, 10, 10); /* Darker shade of red on hover */
+        background-color: rgb(170, 10, 10); 
     }
 </style>
 {% endblock style %}
     {% block nav-user %}
-    <a href="{% url 'delete_user' %}" >
+    <!-- <a href="{% url 'delete_user' %}" >
         <div><img class="nav-component-img-active" src="{% static 'images/home.svg' %}" alt="">
         </div>
-    </a>
+    </a> -->
     <div class="nav-image-text" ><a class="navbar-links-active" href="{% url 'delete_user' %}" ><b>Users</b></a>
     </div>
     {% endblock %}

@@ -26,7 +26,7 @@ manish
             {% for user in users %}
             <div class="available-user-information">  
                 <div class="user-profile-image-container"><img class="user-profile-image" src="{% static 'assets/dp.png' %}" alt=""></div>
-                <div class="user-profile-name"><a class="user-profile-name-anchor" href="{% url 'chat' username=user.username %}">{{user.username}}</a></div>
+                <div class="user-profile-name"><a class="user-profile-name-anchor" href="{% url 'chat' username=user%}">{{user|title}}</a></div>
             </div>
             {% endfor %}
         </div>

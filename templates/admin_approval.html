@@ -29,48 +29,47 @@ Home - SISS
         text-decoration: none;
         color: black;
     }
-     /* Style for the delete button */
+
      .delete-button {
-        background-color: red; /* Red color for danger */
-        color: white; /* White text color */
-        padding: 10px 20px; /* Padding around the text */
-        border: none; /* No border */
-        border-radius: 5px; /* Rounded corners */
-        cursor: pointer; /* Cursor style */
-        font-size: 16px; /* Font size */
+        background-color: red; 
+        color: white; 
+        padding: 10px 20px; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer;
+        font-size: 16px; 
     }
 
-    /* Hover effect for the delete button */
     .delete-button:hover {
-        background-color: rgb(167, 13, 13); /* Darker shade of red on hover */
-    } /* Style for the delete button */
+        background-color: rgb(167, 13, 13); 
+    } 
      .approve_button {
-        background-color: blue; /* Red color for danger */
-        color: white; /* White text color */
-        padding: 10px 20px; /* Padding around the text */
-        border: none; /* No border */
-        border-radius: 5px; /* Rounded corners */
-        cursor: pointer; /* Cursor style */
-        font-size: 16px; /* Font size */
+        background-color: blue;
+        color: white; 
+        padding: 10px 20px; 
+        border: none; 
+        border-radius: 5px; 
+        cursor: pointer; 
+        font-size: 16px; 
     }
 
-    /* Hover effect for the delete button */
+
     .approve_button:hover {
-        background-color: rgb(10, 10, 170); /* Darker shade of red on hover */
+        background-color: rgb(10, 10, 170);
     }
 </style>
 {% endblock style %}
 {% block nav-pending %}
-                            <a href="{% url 'admin_approval' %}">
+                            <!-- <a href="{% url 'admin_approval' %}">
                                 <div><img class="nav-component-img-active" src="{% static 'images/message.svg' %}" alt="">
                                 </div>
-                            </a>
+                            </a> -->
                             <div class="nav-image-text"><a class="navbar-links-active" href="{% url 'admin_approval' %}"><b>Pending Post</b></a></div>
                         </li>
                             {% endblock %}
 {% block rightcontainer %}
 <div class="maincontainer">
-<h1>Pending Posts for Approval</h1>
+<h1>Pending Posts for Approval</h1><br>
 <div>
     <table>
         <thead>
@@ -86,10 +85,9 @@ Home - SISS
         <tbody>
             {% for post in pending_posts %}
             <tr>
-                <td>{{ forloop.counter }}</td> <!-- Display serial number -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a>  </td> <!-- Display user -->
-                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 40 words #}</a>   </td> <!-- Display caption -->
-                <!-- Check if post has an image -->
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{% url 'post_details' post.id %}">{{ post.user|title }}</a>  </td> 
+                <td><a href="{% url 'post_details' post.id %}">{{ post.caption|truncatewords_html:40 }} {# Truncate the text to 40 words #}</a>   </td> 
                 <td>
                     {% if post.post_images %}
                     <ul class="post-images" style="display: flex; flex-direction: row;">

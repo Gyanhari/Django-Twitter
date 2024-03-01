@@ -211,6 +211,8 @@
     brightness(103%) contrast(109%);
 }
 .user-that-follow-you-heading {
+  text-align: center;
+
   border-bottom: 1px solid white;
   padding-bottom: 10px;
 }
@@ -227,7 +229,7 @@
   display: none;
   padding: 20px 30px;
   height: 600px;
-  /* width: 750px; */
+  width: 442px;
   overflow: auto;
   color: white;
   background: black;
@@ -240,6 +242,7 @@
   z-index: 5;
 }
 .user-that-you-follow-heading {
+  text-align: center;
   border-bottom: 1px solid white;
   padding-bottom: 10px;
 }
@@ -256,7 +259,7 @@
   display: none;
   padding: 20px 30px;
   height: 600px;
-  /* width: 750px; */
+  width: 442px;
   overflow: auto;
   color: white;
   background: black;

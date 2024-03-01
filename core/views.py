@@ -41,7 +41,7 @@ def index(request):
 
     user_following = FollowersCount.objects.filter(follower=request.user.username)
 
-    # Filter approved posts for followed users
+    # approved post filter garne
     for user_followed in user_following:
         feed_lists = Post.objects.filter(
             user=user_followed.user, approved=True
@@ -50,7 +50,7 @@ def index(request):
 
     feed_list = list(feed)
 
-    # Fetching budget for each post
+    # Budget lai fetch garne
     budgets = [post.budget for post in feed_list]
 
     feed_list = [post for post in feed_list if post.user != request.user]
@@ -68,7 +68,7 @@ def index(request):
         post.post_images = post_images
         post.post_attachments = post_attachments
 
-    # user suggestion starts
+
     all_users = User.objects.all()
     user_following_all = []
 
@@ -102,15 +102,15 @@ def index(request):
         user = request.user
         text = request.POST.get("comment_text")
         
-        # Determine the post for which the rating is being submitted
-        post_id = request.POST.get("post_id")  # Assuming you have a hidden input field in your form containing the post ID
+   
+        post_id = request.POST.get("post_id")  
         post = get_object_or_404(Post, id=post_id)
 
         # Handling rating submission
         rating_form = RatingForm(request.POST)
         if rating_form.is_valid():
-            rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
-            Rating.objects.update_or_create(post=post, user=user, defaults={'rating': rating})  # Update or create the Rating object
+            rating = rating_form.cleaned_data['rating']  
+            Rating.objects.update_or_create(post=post, user=user, defaults={'rating': rating})
             messages.success(request, "Rating submitted successfully.")
         else:
             messages.error(request, "Invalid rating form. Please try again.")
@@ -118,7 +118,7 @@ def index(request):
     else:
         rating_form = RatingForm()
 
-    # Calculate average rating for each post
+    # post ko average rating calculate garne
     average_ratings = {}
     for post in feed_list:
         average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
@@ -138,7 +138,7 @@ def index(request):
             "suggestions_username_profile_list": suggestions_username_profile_list[:4],
             "budgets": budgets,
             "rating_form": rating_form,
-            "average_ratings": average_ratings,  # Pass average ratings to the template context
+            "average_ratings": average_ratings,
             "sorted_posts": sorted_posts,
         },
     )
@@ -157,10 +157,10 @@ def upload(request):
         first_name = request.user.first_name
         last_name = request.user.last_name
         budget = request.POST.get('budget')
-        images = request.FILES.getlist("image_upload")  # Get multiple image files
-        attachments = request.FILES.getlist("file_upload")  # Get multiple attachment files
+        images = request.FILES.getlist("image_upload")
+        attachments = request.FILES.getlist("file_upload")  
         
-        # Create a post even if caption is not provided
+     
         new_post = Post.objects.create(
             user=user,
             caption=caption,
@@ -168,16 +168,16 @@ def upload(request):
             last_name=last_name,
             budget=budget,
         )
-        # Save each image to the database
+   
         for image in images:
             PostImage.objects.create(post=new_post, image=image)
-        # Save each attachment to the database
+       
         for attachment in attachments:
             PostAttachment.objects.create(post=new_post, attachment=attachment)
         
         return redirect("/")
 
-    return render(request, "upload_form.html")  # Add your upload form template here
+    return render(request, "upload_form.html")  
 
 
 
@@ -189,10 +189,19 @@ def search(request):
     user_object = User.objects.get(username=request.user.username)
     user_profile = Profile.objects.get(user=user_object)
     
+    # logged in user ko profile pic dinxa
+    user_profile_image = user_profile.profileimg.url
+    
+    # logged in user le follow gareko user haru dinxa
+    following_users = FollowersCount.objects.filter(follower=request.user.username).values_list("user", flat=True)
+
+    # logged in user le follow gareko user ko post haru dinxa
+    following_posts = Post.objects.filter(user__in=following_users, approved=True)
 
     if request.method == "POST":
         username = request.POST["username"]
-        username_object = User.objects.filter(username__icontains=username)
+
+        username_object = User.objects.filter(username__icontains=username).exclude(is_superuser=True)
 
         username_profile = []
         username_profile_list = []
@@ -205,11 +214,15 @@ def search(request):
             username_profile_list.append(profile_lists)
 
         username_profile_list = list(chain(*username_profile_list))
+        
     return render(
         request,
         "search.html",
-        {"user_profile": user_profile, "username_profile_list": username_profile_list},
+        {"user_profile": user_profile, "username_profile_list": username_profile_list, "following_posts": following_posts, "user_profile_image": user_profile_image},
     )
+
+
+
 
 
 @login_required(login_url="signin")
@@ -239,36 +252,38 @@ def profile(request, pk):
     user_profile = get_object_or_404(Profile, user=user_object)
     user_email = request.user.email
 
-    # Fetch followers and following users
+    # Follower ra Following lai fetch garxa
     followers = FollowersCount.objects.filter(user=pk).values_list("follower", flat=True)
     following = FollowersCount.objects.filter(follower=pk).values_list("user", flat=True)
 
-    # Fetch User objects for followers and following users
+
     follower_users = User.objects.filter(username__in=followers)
     following_users = User.objects.filter(username__in=following)
 
-    # Calculate total view count for all posts of the user
+    # check garxa yedi user lai follow gareko xa ki nai vanera
+    is_following = False
+    if request.user.is_authenticated and request.user.username != pk:
+        is_following = FollowersCount.objects.filter(follower=request.user, user=user_object).exists()
+
+    # total view count dinxa
     user_posts = Post.objects.filter(user=pk, approved=True)
     total_view_count = sum(post.view_count for post in user_posts)
 
-    # Check if the logged-in user is viewing their own profile
+    # logged in user le afnai profile view gareko ho ki nai check garxa
     if request.user.username == pk:
-        # If the logged-in user is viewing their own profile, show all approved posts
+        # yedi afnai view gareko ho vane approved bhako sabai post dekhauxa
         user_posts_to_display = user_posts
-        user_profile_picture_url = user_profile.profileimg.url  # Profile image URL of the logged-in user
+        user_profile_picture_url = user_profile.profileimg.url 
     else:
-        # If the logged-in user is viewing another user's profile
-        # Check if the user is followed
-        if FollowersCount.objects.filter(follower=request.user.username, user=pk).exists():
-            # If the user is followed, show all posts
+
+        if is_following:
             user_posts_to_display = user_posts
         else:
-            # If the user is not followed, show only approved posts
-            user_posts_to_display = user_posts.order_by("-created_at")[:4]
+            user_posts_to_display = user_posts.order_by("-rating")[:4]
         visited_user_profile = Profile.objects.get(user=request.user)  
         user_profile_picture_url = visited_user_profile.profileimg.url  
 
-    # Fetch followed users' posts and calculate average ratings
+
     followed_users_posts = Post.objects.filter(user__in=following, approved=True)
     average_ratings = {}
     for post in followed_users_posts:
@@ -280,7 +295,7 @@ def profile(request, pk):
     user_following = len(FollowersCount.objects.filter(follower=pk))
 
     if request.user.username != pk:
-        if FollowersCount.objects.filter(follower=request.user.username, user=pk).exists():
+        if is_following:
             button_text = "Unfollow"
         else:
             button_text = "Follow"
@@ -288,20 +303,16 @@ def profile(request, pk):
         button_text = None
 
     if request.method == "POST":
-        # Handling comment submission
+
         user = request.user
         text = request.POST.get("comment_text")
         
-        # Handling rating submission
+
         rating_form = RatingForm(request.POST)
         if rating_form.is_valid():
-            # Get the post ID from the form data
             post_id = rating_form.cleaned_data['post_id']
-            # Retrieve the corresponding post
             post = Post.objects.get(pk=post_id)
-            # Get the rating value from the form data
             rating = rating_form.cleaned_data['rating']
-            # Create and save the Rating object
             Rating.objects.create(post=post, user=user, rating=rating)
             messages.success(request, "Rating submitted successfully.")
         else:
@@ -309,7 +320,6 @@ def profile(request, pk):
     else:
         rating_form = RatingForm()
         
-    # Fetching budget for each post
     budgets = [post.budget for post in user_posts_to_display]
 
     context = {
@@ -323,13 +333,15 @@ def profile(request, pk):
         "following": following_users,
         "button_text": button_text,  
         "user_profile_picture_url": user_profile_picture_url,  
-        "total_view_count": total_view_count,  # Include total view count in the context
+        "total_view_count": total_view_count,  
         "budgets": budgets,
         "user_email" : user_email,
         "rating_form": rating_form,
-        "average_ratings": average_ratings,  # Pass average ratings to the template context
+        "average_ratings": average_ratings,  
+        "is_following": is_following, 
     }
     return render(request, "profile.html", context)
+
 
 
 
@@ -354,13 +366,13 @@ def follow(request):
             new_follower.save()
             return redirect("/profile/" + user)
     else:
-        # Fetch the users who are following the logged-in user
+
         user_followers = FollowersCount.objects.filter(user=request.user).values_list("follower__username", flat=True)
 
-        # Fetch the users whom the logged-in user is following
+
         user_following = FollowersCount.objects.filter(follower=request.user.username).values_list("user__username", flat=True)
 
-        # Fetch the User objects for followers and following users
+
         followers = User.objects.filter(username__in=user_followers)
         following = User.objects.filter(username__in=user_following)
 
@@ -475,7 +487,7 @@ def logout(request):
 def admin_approval(request):
     if request.method == "POST":
         post_id = request.POST.get("post_id")
-        action = request.POST.get("action")  # 'approve' or 'reject'
+        action = request.POST.get("action")  
 
         try:
             post = Post.objects.get(id=post_id)
@@ -484,23 +496,23 @@ def admin_approval(request):
                 post.approved = True
                 post.save()
             elif action == "reject":
-                post.delete()  # Or any other action you want for rejection
+                post.delete()  
 
         except ObjectDoesNotExist:
             pass
 
-    # Fetch all pending posts
+
     pending_posts = Post.objects.filter(approved=False)
 
-    # Fetch all approved posts
+
     approved_posts = Post.objects.filter(approved=True)
 
-    # Fetch images and attachments associated with each pending post
+
     for post in pending_posts:
         post.post_images = PostImage.objects.filter(post=post)
         post.post_attachments = PostAttachment.objects.filter(post=post)
 
-    # Fetch images and attachments associated with each approved post
+
     for post in approved_posts:
         post.post_images = PostImage.objects.filter(post=post)
         post.post_attachments = PostAttachment.objects.filter(post=post)
@@ -516,7 +528,7 @@ def admin_approval(request):
 def approved_post(request):
     if request.method == "POST":
         post_id = request.POST.get("post_id")
-        action = request.POST.get("action")  # 'approve' or 'reject'
+        action = request.POST.get("action") 
 
         try:
             post = Post.objects.get(id=post_id)
@@ -525,15 +537,15 @@ def approved_post(request):
                 post.approved = True
                 post.save()
             elif action == "reject":
-                post.delete()  # Or any other action you want for rejection
+                post.delete()  
 
         except ObjectDoesNotExist:
             pass
 
-    # Fetch all approved posts
+
     approved_posts = Post.objects.filter(approved=True)
 
-    # Fetch images and attachments associated with each post
+
     for post in approved_posts:
         post.post_images = PostImage.objects.filter(post=post)
         post.post_attachments = PostAttachment.objects.filter(post=post)
@@ -560,7 +572,7 @@ def delete_user(request):
         except User.DoesNotExist:
             pass
 
-    # Exclude the superuser from the list of users
+
     users = User.objects.exclude(is_superuser=True)
     
     return render(
@@ -576,7 +588,7 @@ def user_posts(request, user_id):
     user_profile = get_object_or_404(Profile, user=user)
     if request.method == "POST":
         post_id = request.POST.get("post_id")
-        action = request.POST.get("action")  # 'approve' or 'reject'
+        action = request.POST.get("action")  
 
         try:
             post = Post.objects.get(id=post_id)
@@ -585,7 +597,7 @@ def user_posts(request, user_id):
                 post.approved = True
                 post.save()
             elif action == "reject":
-                post.delete()  # Or any other action you want for rejection
+                post.delete()  
 
         except ObjectDoesNotExist:
             pass
@@ -619,19 +631,19 @@ def add_comment(request, post_id):
     comments = Comment.objects.filter(post=post)
     comment_count = comments.count()  
     
-    # Check if the user has already viewed this post during this session
+
     session_key = request.session.session_key
     viewed_posts = request.session.get('viewed_posts', [])
 
-    # Check if the user has already viewed this post recently
+
     user = request.user
     viewed_post, created = ViewedPost.objects.get_or_create(post=post, user=user)
     if created or viewed_post.viewed_at < timezone.now() - timezone.timedelta(days=1):
-        # Increment the view count of the post
+
         post.view_count += 1
         post.save()
 
-        # Update the timestamp of the viewed post
+
         viewed_post.viewed_at = timezone.now()
         viewed_post.save()
 
@@ -639,13 +651,17 @@ def add_comment(request, post_id):
     
     post_user_profile_picture_url = None  
 
+
+    following_users = FollowersCount.objects.filter(follower=request.user.username).values_list("user", flat=True)
+
+
+    following_posts = Post.objects.filter(user__in=following_users, approved=True)
+
     if request.method == "POST":
-        # Handling comment submission
         user = request.user
         text = request.POST.get("comment_text")
         
         if not text:  
-            # messages.error(request, "Please fill in the comment field.")
             pass
         else:
             profile = Profile.objects.get(user=user)
@@ -656,18 +672,17 @@ def add_comment(request, post_id):
             comments = Comment.objects.filter(post=post)
             comment_count = comments.count()
 
-        # Handling rating submission
         rating_form = RatingForm(request.POST)
         if rating_form.is_valid():
-            rating = rating_form.cleaned_data['rating']  # Get the rating value from the form data
-            # Check if the user has already rated this post
+            rating = rating_form.cleaned_data['rating'] 
+
             existing_rating = Rating.objects.filter(post=post, user=user).first()
             if existing_rating:
-                # If the user has already rated, update the existing rating
+
                 existing_rating.rating = rating
                 existing_rating.save()
             else:
-                # If the user hasn't rated yet, create a new rating
+
                 Rating.objects.create(post=post, user=user, rating=rating)
             # messages.success(request, "Rating submitted successfully.")
         else:
@@ -677,14 +692,14 @@ def add_comment(request, post_id):
     else:
         rating_form = RatingForm()
 
-    # Fetch images and attachments associated with the post
+
     post_images = PostImage.objects.filter(post=post)
     post_attachments = PostAttachment.objects.filter(post=post)
     
-    # Calculate average rating for the post
+
     average_rating = Rating.objects.filter(post=post).aggregate(Avg('rating'))['rating__avg'] or 0
     
-    # Pass the rating form instance, average rating, images, and attachments to the template context
+
     return render(request, "comment.html", {
         "post": post, 
         "comments": comments, 
@@ -696,6 +711,7 @@ def add_comment(request, post_id):
         "average_rating": average_rating,
         "post_images": post_images,
         "post_attachments": post_attachments,
+        "following_posts" : following_posts,
     })
 
 
@@ -715,9 +731,9 @@ from django.contrib import messages
 def delete_post(request, post_id):
     post = get_object_or_404(Post, id=post_id)
     
-    # Check if the post belongs to the logged-in user
+
     if post.user == request.user.username:
-        # Delete the post
+
         post.delete()
         messages.success(request, "Post deleted successfully.")
     else:
@@ -729,15 +745,14 @@ def delete_post(request, post_id):
 def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
     
-    # Check if the comment belongs to the logged-in user
+
     if comment.user == request.user:
-        # Delete the comment
         comment.delete()
         messages.success(request, "Comment deleted successfully.")
     else:
         messages.error(request, "You are not authorized to delete this comment.")
     
-    # Redirect back to the post detail page or any appropriate page
+
     return redirect(reverse("comment", kwargs={"post_id": comment.post.id}))
 
 
@@ -752,10 +767,10 @@ def post_details(request, post_id,user_id):
     user_posts = Post.objects.filter(user=user)
     user_profile = get_object_or_404(Profile, user=user)
     
-    # Fetch user information for each like
+
     liked_users = User.objects.filter(username__in=[like.username for like in likes])
 
-    # Combine user information with likes
+
     likes_with_users = [(like, liked_users.get(username=like.username)) for like in likes]
 
     if request.method == 'POST':
@@ -815,13 +830,13 @@ def following_popup(request):
             new_follower.save()
             return redirect("/profile/" + user)
     else:
-        # Fetch the users who are following the logged-in user
+
         user_followers = FollowersCount.objects.filter(user=request.user).values_list("follower", flat=True)
 
-        # Fetch the users whom the logged-in user is following
+
         user_following = FollowersCount.objects.filter(follower=request.user.username).values_list("user", flat=True)
 
-        # Fetch the User objects for followers and following users
+
         followers = User.objects.filter(username__in=user_followers)
         following = User.objects.filter(username__in=user_following)
 

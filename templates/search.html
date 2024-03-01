@@ -5,6 +5,10 @@
 Search
 {% endblock %}
 
+{% block profile %}
+{{ user_profile_image }}
+{% endblock profile %}
+
 {% block style %}
 <style>
     .search-result-item{
@@ -77,34 +81,32 @@ Search
 <div class="right-posts">
     <div class="right-posts-heading">Posts of the month</div>
 
-    {% for post in posts|slice:":5" %}
+    {% for post in following_posts %}
     <a href="{% url 'comment' post.id %}">
         <div class="right-top-post">
             <div class="top-post-main-container">
                 <div class="right-top-post-user-info">
-                    <p><strong>{{post.user|title}}</strong></p>
+                    <p><strong>{{ post.user|title }}</strong></p>
                     <p><h3>&#x2022;</h3></p>
-                    <p>{{post.created_at}}</p>
-                     <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                    <p>{{ post.created_at }}</p>
+                    <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
                         <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
-                        <img  src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
+                        <img src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
                     </div> 
                 </div>
                 {% if post.caption %}
-                 {% if post.caption|wordcount > 20 %}  {# Assuming you want to display only 20 words initially #}
-                    <p class="tweets-main-body-desc">
-                     {{ post.caption|truncatewords_html:10 }}  {# Truncate the text to 20 words #}
-                     <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
-                     
-                    </p>
-            <!-- <p class="tweets-main-body-desc hidden">{{ post.caption }}</p>  {# Hidden paragraph to display full text on "See more" click #} -->
-            {% else %}
-                    <p class="tweets-main-body-desc">{{ post.caption }}</p>
-            {% endif %}
-            {% endif %}
+                    {% if post.caption|wordcount > 20 %}
+                        <p class="tweets-main-body-desc">
+                            {{ post.caption|truncatewords_html:10 }}
+                            <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                        </p>
+                    {% else %}
+                        <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                    {% endif %}
+                {% endif %}
             </div>
             {% if post.image %}
-            <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+                <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
             {% endif %}
         </div>  
     </a>
@@ -112,6 +114,8 @@ Search
 
     <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
 </div>
+
+
             
         </div>
 

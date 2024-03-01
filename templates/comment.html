@@ -95,7 +95,21 @@ Post Details - SISS
         padding-bottom: 15px;
         text-decoration: none;
     }
-
+    .give-rating-form-number{
+        display: flex;
+        align-items: center;
+        flex-direction: row;
+        justify-content: center;
+        gap: 15px;
+    }
+    .submit-rating-number{
+        color: white;
+        background-color: #0056b3;
+        border-radius: 25px;
+        width: 100px;
+        height: 30px;
+        padding: 1px 20px
+    }
     .tweets-like-and-number,
     .tweets-comment-and-number {
         display: flex;
@@ -185,9 +199,16 @@ Post Details - SISS
         cursor: pointer;
         transition: background-color 0.3s;
     }
-
+    .delete-comment-button{
+        padding: 2px 20px;
+        margin-left: 15px;
+        border-radius: 25px;
+    }
     .comment-submit-btn:hover {
         background-color: #0056b3;
+    }
+    .delete-comment-image{
+        height: 20px;
     }
 </style>
 {% endblock %}
@@ -297,10 +318,12 @@ Post Details - SISS
                                 the post</li>
                             {% endfor %}
 
-                            <form method="post" action="">
-                                {% csrf_token %}
-                                {{ rating_form }}
-                                <button type="submit">Submit Rating</button>
+                            <form class=""  method="post" action="">
+                                <div class="give-rating-form-number">
+                                    {% csrf_token %}
+                                    {{ rating_form }}
+                                    <button class="submit-rating-number" type="submit">Submit</button>
+                                </div>
                             </form>
 
 
@@ -339,11 +362,11 @@ Post Details - SISS
                                 <p>{{ comment.text }}</p><br>
                                 <div class="comment_profile_username">
                                     {% if comment.user == request.user %}
-                                    <!-- Display profile image of logged-in user -->
+
                                     <img src="{{ logged_in_user_profile_picture_url }}" alt="Profile Image"
                                         style="width: 25px; height: 25px; border-radius: 50%; margin-right: 10px;">
                                     {% elif comment.post_user_profile_picture_url %}
-                                    <!-- Display profile image of the user who posted the comment -->
+
                                     <img src="{{ comment.post_user_profile_picture_url }}" alt="Profile Image"
                                         style="width: 45px; height: 45px; border-radius: 50%;">
                                     {% endif %}
@@ -352,10 +375,10 @@ Post Details - SISS
                                         <p style="font-weight: 600;">{{ comment.user.username|title }}</p>
                                     </a>
                                     {% if comment.user == request.user %}
-                                    <form id="delete-comment-form-{{ comment.id }}"
+                                    <form class="delete_comment_form" id="delete-comment-form-{{ comment.id }}"
                                         action="{% url 'delete_comment' comment.id %}" method="post">
                                         {% csrf_token %}
-                                        <button type="button" class="delete-comment-button">Delete</button>
+                                        <button type="button" class="delete-comment-button"><img class="delete-comment-image" src="{% static 'images/icons8-delete.svg' %}" alt=""></button>
                                     </form>
                                     {% endif %}
 
@@ -414,3 +437,58 @@ Post Details - SISS
 </script>
 
 {% endblock %}
+
+{% block right_block %}
+<form action="/search" method="POST">
+    {% csrf_token %}
+    <div class="right-search-bar">
+        <label for="search-box"></label>
+        <input id="search-box" type="text" name="username" placeholder="Search for user">&nbsp;
+        &nbsp;
+        <div class="right-search-button"><img class="search-bar-image"
+                src="{% static 'images/search.svg' %}" alt=""></div>
+
+    </div>
+</form>
+<div class="right-posts">
+    <div class="right-posts-heading">Posts of the month</div>
+
+    {% for post in following_posts %}
+    <a href="{% url 'comment' post.id %}">
+        <div class="right-top-post">
+            <div class="top-post-main-container">
+                <div class="right-top-post-user-info">
+                    <p><strong>{{ post.user|title }}</strong></p>
+                    <p><h3>&#x2022;</h3></p>
+                    <p>{{ post.created_at }}</p>
+                    <div class="rating" style="display: flex; flex-direction: row; margin-left: 50px;">
+                        <p><small>{{ post.average_rating|floatformat:"1" }}</small></p>
+                        <img src="{% static 'images/icons8-star-48.png' %}" alt="" height="18px" width="18px">
+                    </div> 
+                </div>
+                {% if post.caption %}
+                    {% if post.caption|wordcount > 20 %}
+                        <p class="tweets-main-body-desc">
+                            {{ post.caption|truncatewords_html:10 }}
+                            <a href="{% url 'comment' post.id %}" class="see-more-link" style="color: blue;">See more</a>
+                        </p>
+                    {% else %}
+                        <p class="tweets-main-body-desc">{{ post.caption }}</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+            {% if post.image %}
+                <div><img class="top-post-image" src="{{ post.image.url }}" alt=""></div>
+            {% endif %}
+        </div>  
+    </a>
+    {% endfor %}
+
+    <!-- <div><a class="right-bot-show-more" href="">Show more</a></div> -->
+</div>
+
+
+            
+        </div>
+
+{% endblock right_block %}

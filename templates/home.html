@@ -98,7 +98,7 @@
             <div class="create-post-overlay">
                 <div class="create-post-header">Create Post</div>
                 <div class="create-post-body">
-                    <form action="/upload" method="POST" enctype="multipart/form-data">
+                    <form style="display: flex; flex-direction: column;gap: 35px;" action="/upload" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="post-user-caption">
                             <label for="user-caption">Caption<sup style="color: red;user-select: none"></sup>: </label>
