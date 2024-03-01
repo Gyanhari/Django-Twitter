@@ -4,13 +4,20 @@ Contains Features Like
 - Post
 - Comment
 - Follow
-- Chatting
+- Chatting (using Web-sockets)
 
 ## Sample of the Final Project
-    ![Home Page](/git-images/home_page.png)
-    ![Profile Page](/git-images/profile_page.png)
-    ![Message Page](/git-images/message_page.png)
-    ![Admin Dashboard](/git-images/admin_page.png)
+![Home Page](/git-images/home_page.png)
+<p align="center">Home Page</p>
+
+![Profile Page](git-images/profile_page.png)
+<p align="center">Profile Page</p>
+
+![Message Page](git-images/message_page.png)
+<p align="center">Message Page</p>
+
+![Admin Dashboard](git-images/admin_page.png)
+<p align="center">Admin Dashboard</p>
 
 ## Installation
 
@@ -21,6 +28,12 @@ This project is using a MySQL database, so you will need to have XAMPP or WAMP i
 1. **XAMPP**: Download and install XAMPP from [the official website](https://www.apachefriends.org/index.html).
 2. **WAMP**: Download and install WAMP from [the official website](https://www.wampserver.com/en/).
 
+### Admin Credentials
+
+To access the administrative dashboard, use the following credentials:
+
+- **Username**: `admin`
+- **Password**: `admin`
 
 ### How to Start
 
@@ -33,5 +46,4 @@ This project is using a MySQL database, so you will need to have XAMPP or WAMP i
 * Start apache server and mysql server 
 * Open the terminal and enter the following command
     1. `python manage.py runserver`
-* Create New user and use
 
