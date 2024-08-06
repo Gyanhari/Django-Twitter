@@ -1,4 +1,8 @@
-## Twitter like Website By **Ankit-Rawal**, **@Varl-Starkiller**, **@Manish2467**
+## Twitter like Website
+Made By: 
+   - [**Ankit Rawal**](https://github.com/AkSR0303)
+   - [**Gyan Hari Dahal**](https://github.com/gyanhari)
+   - [**Manish Timsina**](https://github.com/Manish2467)
 ### Idea Sharing Site
 Contains Features Like
 - Post
